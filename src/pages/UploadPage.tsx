@@ -7,7 +7,6 @@ import {
   Square, 
   Image as ImageIcon, 
   Video, 
-  Menu 
 } from 'lucide-react';
 import './UploadPage.css'
 import AppHeader from '../components/AppHeader';
