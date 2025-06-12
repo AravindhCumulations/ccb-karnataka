@@ -1,0 +1,441 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    background-color: #ffffff;
+    color: #333;
+    line-height: 1.5;
+  }
+  
+  .app-container {
+    min-height: 100vh;
+    background-color: #ffffff;
+  }
+  
+  /* Header Styles */
+  .header {
+    background: linear-gradient(92.31deg, #59997F 0%, #794585 99.23%);
+    padding: 24px 16px;
+    color: white;
+    position: relative;
+  }
+  
+  .header-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  
+  .header-nav svg {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  
+  .header-nav svg:hover {
+    opacity: 0.8;
+  }
+  
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .logo-container {
+    width: 48px;
+    height: 48px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .logo-inner {
+    width: 32px;
+    height: 32px;
+    background-color: #fb923c;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  .header-title {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  
+  .header-divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 192px;
+    margin-top: 4px;
+  }
+  
+  /* Form Container */
+  .form-container {
+    padding: 24px 16px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  .form-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  
+  .form-header svg {
+    width: 20px;
+    height: 20px;
+    color: #6b7280;
+  }
+  
+  .form-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: #1f2937;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  /* Form Field Styles */
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .form-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+  }
+  
+  .form-help-text {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+  }
+  
+  /* Mobile Number Section */
+  .mobile-input-container {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .country-code-box {
+    width: 53px;
+    height: 53px;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    font-weight: 500;
+    font-size: 16px;
+    border: none;
+    outline: none;
+    transition: background-color 0.2s ease;
+  }
+  
+  .mobile-number-input {
+    flex: 1;
+    height: 53px;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    padding: 12px;
+    border: none;
+    outline: none;
+    color: #1f2937;
+    font-size: 16px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .mobile-number-input:focus {
+    background-color: #e5e7eb;
+  }
+  
+  .mobile-number-input::placeholder {
+    color: #9ca3af;
+  }
+  
+  /* Standard Input Fields */
+  .standard-input {
+    width: 343px;
+    height: 53px;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    padding: 12px;
+    border: none;
+    outline: none;
+    color: #1f2937;
+    font-size: 16px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .standard-input:focus {
+    background-color: #e5e7eb;
+  }
+  
+  .standard-input::placeholder {
+    color: #9ca3af;
+  }
+  
+  /* Location Input */
+  .location-input-container {
+    position: relative;
+    width: 343px;
+    height: 53px;
+  }
+  
+  .location-input {
+    width: 100%;
+    height: 100%;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    padding: 12px 40px 12px 12px;
+    border: none;
+    outline: none;
+    color: #1f2937;
+    font-size: 16px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .location-input:focus {
+    background-color: #e5e7eb;
+  }
+  
+  .location-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    color: #6b7280;
+  }
+  
+  /* Voice Note Section */
+  .voice-note-container {
+    width: 343px;
+    height: 163px;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  
+  .voice-record-button {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    transform-origin: center;
+  }
+  
+  .voice-record-button:hover {
+    transform: scale(1.05);
+  }
+  
+  .voice-record-button:active {
+    transform: scale(0.95);
+  }
+  
+  .voice-record-button.recording {
+    background-color: #ef4444;
+  }
+  
+  .voice-record-button.recording:hover {
+    background-color: #dc2626;
+  }
+  
+  .voice-record-button:not(.recording) {
+    background-color: #22c55e;
+  }
+  
+  .voice-record-button:not(.recording):hover {
+    background-color: #16a34a;
+  }
+  
+  .voice-record-button svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+  }
+  
+  .recording-time {
+    font-size: 18px;
+    font-family: 'Courier New', monospace;
+    color: #6b7280;
+    font-weight: 600;
+  }
+  
+  /* Upload Sections */
+  .upload-container {
+    width: 343px;
+    height: 44px;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .upload-container:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .upload-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #2563eb;
+  }
+  
+  .upload-content svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .upload-text {
+    font-weight: 500;
+    font-size: 14px;
+  }
+  
+  .upload-input {
+    display: none;
+  }
+  
+  /* Additional Notes */
+  .notes-container {
+    width: 343px;
+    height: 103px;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    padding: 12px;
+  }
+  
+  .notes-textarea {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #1f2937;
+    font-size: 16px;
+    resize: none;
+    font-family: inherit;
+  }
+  
+  .notes-textarea::placeholder {
+    color: #9ca3af;
+  }
+  
+  /* Submit Button */
+  .submit-button {
+    width: 343px;
+    height: 51px;
+    background: linear-gradient(92.31deg, #59997F 0%, #794585 99.23%);
+    border-radius: 12px;
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    transform-origin: center;
+  }
+  
+  .submit-button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(89, 153, 127, 0.3);
+  }
+  
+  .submit-button:active {
+    transform: scale(0.98);
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 480px) {
+    .form-container {
+      padding: 16px 12px;
+    }
+    
+    .standard-input,
+    .location-input-container,
+    .voice-note-container,
+    .upload-container,
+    .notes-container,
+    .submit-button {
+      width: 100%;
+      max-width: 343px;
+    }
+    
+    .mobile-input-container {
+      gap: 8px;
+    }
+    
+    .country-code-box {
+      width: 53px;
+      height: 53px;
+    }
+    
+    .mobile-number-input {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+  
+  /* Focus States */
+  .mobile-number-input:focus,
+  .standard-input:focus,
+  .location-input:focus,
+  .notes-textarea:focus {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+  
+  /* Animation for recording */
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+  
+  .voice-record-button.recording {
+    animation: pulse 1s infinite;
+  }
