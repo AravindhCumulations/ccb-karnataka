@@ -11,7 +11,7 @@ import {
 import './UploadPage.css'
 import AppHeader from '../components/AppHeader';
 import { useNavigate } from 'react-router-dom';
-
+import RecordRTC from 'recordrtc';
 
 const UploadPage: React.FC = () => {
   const navigate = useNavigate();
@@ -19,8 +19,15 @@ const UploadPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [issueLocation, setIssueLocation] = useState('');
   const [additionalNotes, setAdditionalNotes] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
+
+  // const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState('00:00');
+
+  const recorderRef = useRef<any>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
   const [uploadedPhoto, setUploadedPhoto] = useState<File | null>(null);
   const [uploadedVideo, setUploadedVideo] = useState<File | null>(null);
   
@@ -48,44 +55,77 @@ const UploadPage: React.FC = () => {
   };
 
 
-    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-    const audioChunksRef = useRef<Blob[]>([]);
-    const [audioUrl, setAudioUrl] = useState<string | null>(null);
+    // const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    // const audioChunksRef = useRef<Blob[]>([]);
+    // const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
+
+    // const toggleRecording = async () => {
+    //     if (!isRecording) {
+    //         try {
+    //         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    //         const mediaRecorder = new MediaRecorder(stream);
+    //         mediaRecorderRef.current = mediaRecorder;
+    //         audioChunksRef.current = [];
+
+    //         mediaRecorder.ondataavailable = (e) => {
+    //             if (e.data.size > 0) {
+    //             audioChunksRef.current.push(e.data);
+    //             }
+    //         };
+
+    //         mediaRecorder.onstop = () => {
+    //             const audioBlob = new Blob(audioChunksRef.current, {
+    //               type: 'audio/webm;codecs=opus',
+    //             });
+    //             const url = URL.createObjectURL(audioBlob);
+    //             setAudioUrl(url); // ✅ Save it to state
+    //           };
+
+    //         mediaRecorder.start();
+    //         setRecordingTime('00:00'); // Optional: Reset timer
+    //         setIsRecording(true);
+    //         } catch (err) {
+    //         alert('Microphone access denied or not supported');
+    //         console.error(err);
+    //         }
+    //     } else {
+    //         mediaRecorderRef.current?.stop();
+    //         setIsRecording(false);
+    //     }
+    // };
 
     const toggleRecording = async () => {
-        if (!isRecording) {
-            try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const mediaRecorder = new MediaRecorder(stream);
-            mediaRecorderRef.current = mediaRecorder;
-            audioChunksRef.current = [];
-
-            mediaRecorder.ondataavailable = (e) => {
-                if (e.data.size > 0) {
-                audioChunksRef.current.push(e.data);
-                }
-            };
-
-            mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunksRef.current, {
-                  type: 'audio/webm;codecs=opus',
-                });
-                const url = URL.createObjectURL(audioBlob);
-                setAudioUrl(url); // ✅ Save it to state
-              };
-
-            mediaRecorder.start();
-            setRecordingTime('00:00'); // Optional: Reset timer
-            setIsRecording(true);
-            } catch (err) {
-            alert('Microphone access denied or not supported');
-            console.error(err);
-            }
-        } else {
-            mediaRecorderRef.current?.stop();
-            setIsRecording(false);
+      if (!isRecording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          streamRef.current = stream;
+    
+          const recorder = new RecordRTC(stream, {
+            type: 'audio',
+            mimeType: 'audio/wav',
+            recorderType: RecordRTC.StereoAudioRecorder,
+            desiredSampRate: 16000,
+          });
+    
+          recorder.startRecording();
+          recorderRef.current = recorder;
+          setIsRecording(true);
+        } catch (err) {
+          alert('Microphone access denied or not supported');
+          console.error(err);
         }
+      } else {
+        setIsRecording(false);
+    
+        recorderRef.current.stopRecording(() => {
+          const blob = recorderRef.current.getBlob();
+          const url = URL.createObjectURL(blob);
+          setAudioUrl(url);
+        });
+    
+        streamRef.current?.getTracks().forEach((track) => track.stop());
+      }
     };
 
     const timerRef = useRef<number | null>(null);
@@ -183,9 +223,15 @@ const UploadPage: React.FC = () => {
               <span className="recording-time">{recordingTime}</span>
             </div>
 
-            {/* ✅ Audio Preview */}
+            {/* ✅ Audio Preview
             {audioUrl && (
                 <audio controls src={audioUrl} className="audio-preview" />
+            )} */}
+
+            {audioUrl && (
+              <div>
+                <audio controls src={audioUrl} />
+              </div>
             )}
           </div>
 
