@@ -68,7 +68,9 @@ const UploadPage: React.FC = () => {
             };
 
             mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                const audioBlob = new Blob(audioChunksRef.current, {
+                  type: 'audio/webm;codecs=opus',
+                });
                 const url = URL.createObjectURL(audioBlob);
                 setAudioUrl(url); // ✅ Save it to state
               };
