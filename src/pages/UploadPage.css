@@ -138,7 +138,7 @@
   /* Mobile Number Section */
   .mobile-input-container {
     display: flex;
-    gap: 12px;
+    gap: 4px;
   }
   
   .country-code-box {
@@ -160,6 +160,7 @@
   .mobile-number-input {
     flex: 1;
     height: 53px;
+    max-width: 285px;
     background-color: #f5f5f5;
     border-radius: 12px;
     padding: 12px;
@@ -439,3 +440,66 @@
   .voice-record-button.recording {
     animation: pulse 1s infinite;
   }
+
+  .preview-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  
+  .preview-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+  }
+  
+  .preview-wrapper,
+.video-preview-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.remove-button {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 18px;
+  padding: 0;
+}
+
+.remove-button:hover {
+  background-color: #d9363e;
+}
+
+.suggestion-list {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  z-index: 10;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 14px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.suggestion-list li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.suggestion-list li:hover {
+  background-color: #f0f0f0;
+}

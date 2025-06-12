@@ -18,9 +18,12 @@ const UploadPage: React.FC = () => {
     const [mobileNumber, setMobileNumber] = useState('');
   const [email, setEmail] = useState('');
   const [issueLocation, setIssueLocation] = useState('');
+  const [loadingLocation, setLoadingLocation] = useState(false);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
   const [additionalNotes, setAdditionalNotes] = useState('');
 
-  // const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState('00:00');
 
   const recorderRef = useRef<any>(null);
@@ -28,72 +31,43 @@ const UploadPage: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
-  const [uploadedPhoto, setUploadedPhoto] = useState<File | null>(null);
+  const [uploadedPhotos, setUploadedPhotos] = useState<File[]>([]);
   const [uploadedVideo, setUploadedVideo] = useState<File | null>(null);
+
   
   const photoInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setUploadedPhoto(file);
+    const files = Array.from(event.target.files || []);
+    const validFiles = files.filter(file => file.size <= 1024 * 1024); // 1MB
+  
+    if (validFiles.length !== files.length) {
+      alert("Some images were too large (max 1MB). Only smaller images are accepted.");
     }
+  
+    setUploadedPhotos(prev => [...prev, ...validFiles]);
   };
+  
 
   const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      setUploadedVideo(file);
+    if (!file) return;
+  
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Video must be smaller than 5MB.");
+      return;
     }
+  
+    setUploadedVideo(file);
   };
+  
 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted');
   };
-
-
-    // const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-    // const audioChunksRef = useRef<Blob[]>([]);
-    // const [audioUrl, setAudioUrl] = useState<string | null>(null);
-
-
-    // const toggleRecording = async () => {
-    //     if (!isRecording) {
-    //         try {
-    //         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    //         const mediaRecorder = new MediaRecorder(stream);
-    //         mediaRecorderRef.current = mediaRecorder;
-    //         audioChunksRef.current = [];
-
-    //         mediaRecorder.ondataavailable = (e) => {
-    //             if (e.data.size > 0) {
-    //             audioChunksRef.current.push(e.data);
-    //             }
-    //         };
-
-    //         mediaRecorder.onstop = () => {
-    //             const audioBlob = new Blob(audioChunksRef.current, {
-    //               type: 'audio/webm;codecs=opus',
-    //             });
-    //             const url = URL.createObjectURL(audioBlob);
-    //             setAudioUrl(url); // ✅ Save it to state
-    //           };
-
-    //         mediaRecorder.start();
-    //         setRecordingTime('00:00'); // Optional: Reset timer
-    //         setIsRecording(true);
-    //         } catch (err) {
-    //         alert('Microphone access denied or not supported');
-    //         console.error(err);
-    //         }
-    //     } else {
-    //         mediaRecorderRef.current?.stop();
-    //         setIsRecording(false);
-    //     }
-    // };
 
     const toggleRecording = async () => {
       if (!isRecording) {
@@ -149,6 +123,87 @@ const UploadPage: React.FC = () => {
     }, [isRecording]);
 
 
+    const detectCurrentLocation = () => {
+      setLoadingLocation(true);
+    
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+    
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`
+            );
+            const data = await response.json();
+    
+            const address = data?.display_name;
+            if (address) {
+              setIssueLocation(address);
+            } else {
+              // fallback to something more readable
+              setIssueLocation(`${data?.address?.suburb || ''} ${data?.address?.city || ''} ${data?.address?.state || ''}`);
+            }
+          } catch (error) {
+            console.error('Reverse geocoding failed:', error);
+            setIssueLocation(`${latitude}, ${longitude}`);
+          } finally {
+            setLoadingLocation(false);
+          }
+        },
+        (error) => {
+          console.error('Geolocation failed:', error);
+          alert('Unable to access location. Please enable GPS.');
+          setLoadingLocation(false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+    };
+    
+    const handleLocationChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setIssueLocation(value);
+    
+      if (value.length < 3) {
+        setSuggestions([]);
+        setShowSuggestions(false);
+        return;
+      }
+    
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&addressdetails=1&limit=5&countrycodes=in`,
+          {
+            headers: {
+              'Accept': 'application/json',
+            },
+          }
+        );
+    
+        const data = await response.json();
+    
+        if (Array.isArray(data)) {
+          setSuggestions(data);
+          setShowSuggestions(true);
+        } else {
+          setSuggestions([]);
+        }
+      } catch (error) {
+        console.error('Autocomplete failed:', error);
+        setSuggestions([]);
+      }
+    };
+    
+
+    const handleSuggestionSelect = (item: any) => {
+      setIssueLocation(item.display_name);
+      setSuggestions([]);
+      setShowSuggestions(false);
+    };
+    
 
   return (
     <div className="app-container">
@@ -195,19 +250,37 @@ const UploadPage: React.FC = () => {
           </div>
 
           {/* Issue Location Section */}
-          <div className="form-field">
+          <div className="form-field" style={{ position: 'relative' }}>
             <label className="form-label">Issue Location</label>
             <div className="location-input-container">
               <input
                 type="text"
                 value={issueLocation}
-                onChange={(e) => setIssueLocation(e.target.value)}
-                placeholder="Select location"
+                onChange={handleLocationChange}
+                placeholder="Enter or detect location"
                 className="location-input"
+                onFocus={() => setShowSuggestions(true)}
               />
-              <MapPin className="location-icon" />
+              <MapPin
+                className="location-icon"
+                onClick={detectCurrentLocation}
+                style={{ cursor: 'pointer' }}
+              />
             </div>
+            {loadingLocation && <p style={{ fontSize: '12px' }}>📡 Detecting location...</p>}
+
+            {/* Suggestion Dropdown */}
+            {showSuggestions && suggestions.length > 0 && (
+              <ul className="suggestion-list">
+                {suggestions.map((item, idx) => (
+                  <li key={idx} onClick={() => handleSuggestionSelect(item)}>
+                    {item.display_name}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
+
 
           {/* Voice Note Section */}
           <div className="form-field">
@@ -223,11 +296,6 @@ const UploadPage: React.FC = () => {
               <span className="recording-time">{recordingTime}</span>
             </div>
 
-            {/* ✅ Audio Preview
-            {audioUrl && (
-                <audio controls src={audioUrl} className="audio-preview" />
-            )} */}
-
             {audioUrl && (
               <div>
                 <audio controls src={audioUrl} />
@@ -237,39 +305,51 @@ const UploadPage: React.FC = () => {
 
           {/* Upload Photo Section */}
           <div className="form-field">
-            <label className="form-label">Upload Photo</label>
-            <div 
-              onClick={() => photoInputRef.current?.click()}
-              className="upload-container"
-            >
+            <label className="form-label">Upload Photos (max 1MB each)</label>
+            <div onClick={() => photoInputRef.current?.click()} className="upload-container">
               <div className="upload-content">
                 <ImageIcon />
-                <span className="upload-text">
-                  {uploadedPhoto ? uploadedPhoto.name : 'Upload Photo'}
-                </span>
+                <span className="upload-text">Click to upload photos</span>
               </div>
             </div>
             <input
               ref={photoInputRef}
               type="file"
               accept="image/*"
+              multiple
               onChange={handlePhotoUpload}
               className="upload-input"
             />
+            <div className="preview-grid">
+              {uploadedPhotos.map((file, index) => (
+                <div className="preview-wrapper" key={index}>
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt={`upload-${index}`}
+                    className="preview-image"
+                  />
+                  <button
+                    className="remove-button"
+                    type="button"
+                    onClick={() => {
+                      setUploadedPhotos(prev => prev.filter((_, i) => i !== index));
+                    }}
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
+
 
           {/* Upload Video Section */}
           <div className="form-field">
-            <label className="form-label">Upload Video</label>
-            <div 
-              onClick={() => videoInputRef.current?.click()}
-              className="upload-container"
-            >
+            <label className="form-label">Upload Video (max 5MB)</label>
+            <div onClick={() => videoInputRef.current?.click()} className="upload-container">
               <div className="upload-content">
                 <Video />
-                <span className="upload-text">
-                  {uploadedVideo ? uploadedVideo.name : 'Upload Video'}
-                </span>
+                <span className="upload-text">{uploadedVideo?.name || 'Upload Video'}</span>
               </div>
             </div>
             <input
@@ -279,7 +359,23 @@ const UploadPage: React.FC = () => {
               onChange={handleVideoUpload}
               className="upload-input"
             />
+            {uploadedVideo && (
+              <div className="video-preview-wrapper">
+                <video controls width="100%">
+                  <source src={URL.createObjectURL(uploadedVideo)} type={uploadedVideo.type} />
+                  Your browser does not support the video tag.
+                </video>
+                <button
+                  className="remove-button"
+                  type="button"
+                  onClick={() => setUploadedVideo(null)}
+                >
+                  &times;
+                </button>
+              </div>
+            )}
           </div>
+
 
           {/* Additional Notes Section */}
           <div className="form-field">
