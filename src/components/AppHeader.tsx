@@ -13,7 +13,7 @@ const AppHeader: React.FC = () => {
       {/* Header */}
       <div className="header">
         <div className="header-content">
-          <img src="/Frame1000003741.svg" alt="NCC Logo" className="logo-image" />
+          <img src="/Frame1000003741.svg" alt="NCB Logo" className="logo-image" />
         </div>
       </div>
     </>
