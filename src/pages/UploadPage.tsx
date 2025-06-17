@@ -216,9 +216,6 @@ const UploadPage: React.FC = () => {
     };
 
     const uploadToS3 = async (file: File) => {
-      let errMess = "hello ";
-      errMess += file.name + " ";
-      errMess += " " + file.type;
       try {
         // Step 1: Get Signed URL from your Node.js backend
         const res = await fetch('https://erbmnx9dfg.execute-api.us-east-1.amazonaws.com/stage1/', {
@@ -231,14 +228,8 @@ const UploadPage: React.FC = () => {
             fileType: file.type,
           }),
         });
-
-        if(!res.ok){
-          console.log('api faild')
-        }
-        
         
         const responseEvent = await res.json();
-        console.log('response=',responseEvent,typeof responseEvent.body === 'string')
 
         // Parse the nested JSON string
         const body = typeof responseEvent.body === 'string'
@@ -247,9 +238,6 @@ const UploadPage: React.FC = () => {
         
         const signedUrl = body.signedUrl;
         const fileUrl = body.fileUrl;
-
-        errMess += " " + JSON.stringify(body)
-        errMess += " " + signedUrl;
         
         // Step 2: Upload the file to the signed URL
         
@@ -269,9 +257,7 @@ const UploadPage: React.FC = () => {
         // Step 3: Use fileUrl as your uploaded public file path
         return fileUrl;
       } catch (err) {
-        console.error('Upload error:', err,errMess);
-        errMess += " " + err
-        alert('File upload failed!' + errMess);
+        alert('File upload failed!');
       }
     };
 
