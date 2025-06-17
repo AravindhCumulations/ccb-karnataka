@@ -259,7 +259,7 @@ const UploadPage: React.FC = () => {
         return fileUrl;
       } catch (err) {
         console.error('Upload error:', err);
-        alert('File upload failed!');
+        alert('File upload failed!' + err);
       }
     };
 
