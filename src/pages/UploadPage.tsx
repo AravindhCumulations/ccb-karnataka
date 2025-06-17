@@ -216,6 +216,7 @@ const UploadPage: React.FC = () => {
     };
 
     const uploadToS3 = async (file: File) => {
+      let errMess;
       try {
         // Step 1: Get Signed URL from your Node.js backend
         const res = await fetch('https://erbmnx9dfg.execute-api.us-east-1.amazonaws.com/stage1/', {
@@ -238,7 +239,7 @@ const UploadPage: React.FC = () => {
 
         const signedUrl = body.signedUrl;
         const fileUrl = body.fileUrl;
-
+        errMess = signedUrl;
         
         // Step 2: Upload the file to the signed URL
         
@@ -259,7 +260,8 @@ const UploadPage: React.FC = () => {
         return fileUrl;
       } catch (err) {
         console.error('Upload error:', err);
-        alert('File upload failed!' + err);
+        errMess += " " + err
+        alert('File upload failed!' + errMess);
       }
     };
 
