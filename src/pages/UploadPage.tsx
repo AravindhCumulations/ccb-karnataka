@@ -216,7 +216,9 @@ const UploadPage: React.FC = () => {
     };
 
     const uploadToS3 = async (file: File) => {
-      let errMess = "";
+      let errMess = "hello ";
+      errMess += file.name + " ";
+      errMess += " " + file.type;
       try {
         // Step 1: Get Signed URL from your Node.js backend
         const res = await fetch('https://erbmnx9dfg.execute-api.us-east-1.amazonaws.com/stage1/', {
@@ -230,7 +232,7 @@ const UploadPage: React.FC = () => {
           }),
         });
 
-        errMess += file.name + " " + file.type
+        
 
         const responseEvent = await res.json();
 
