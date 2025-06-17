@@ -352,6 +352,7 @@ const UploadPage: React.FC = () => {
         setAdditionalNotes('')
         setIssueLocation('')
         setIsUploading(false)
+        setRecordingTime('00.00')
         // ✅ Use the uploaded URLs as needed (e.g. send to backend)
       } catch (err) {
         console.error('Upload failed:', err);
