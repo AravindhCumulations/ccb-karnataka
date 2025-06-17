@@ -503,3 +503,14 @@
 .suggestion-list li:hover {
   background-color: #f0f0f0;
 }
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.success-message {
+  margin-top: 12px;
+  color: green;
+  font-weight: bold;
+}

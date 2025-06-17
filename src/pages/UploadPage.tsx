@@ -40,7 +40,8 @@ const UploadPage: React.FC = () => {
   // const [videoURL, setVideoURL] = useState<string | null>(null);
   // const [videoSizeMB, setVideoSizeMB] = useState<string | null>(null);
 
-  
+  const [isUploading, setIsUploading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const photoInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
 
@@ -310,6 +311,9 @@ const UploadPage: React.FC = () => {
     };
     
     const handleFinalUpload = async () => {
+      setIsUploading(true);
+      setSuccessMessage('');
+
       try {
         // Upload Photos
         const uploadedPhotoUrls = await Promise.all(
@@ -336,7 +340,18 @@ const UploadPage: React.FC = () => {
           uploadedAudioUrl = await uploadToS3(audioFile);
           console.log('Uploaded Audio:', uploadedAudioUrl);
         }
-    
+
+        // ✅ Clear file states after success
+        setAudioUrl(null);
+        setUploadedPhotos([]);
+        setUploadedVideo(null);
+        setSuccessMessage('Files uploaded successfully!');
+        setEmail('')
+        setAudioUrl('')
+        setMobileNumber('')
+        setAdditionalNotes('')
+        setIssueLocation('')
+        setIsUploading(false)
         // ✅ Use the uploaded URLs as needed (e.g. send to backend)
       } catch (err) {
         console.error('Upload failed:', err);
@@ -572,9 +587,21 @@ const UploadPage: React.FC = () => {
           </div>
 
           {/* Submit Button */}
-          <button type="submit" className="submit-button" onClick={handleFinalUpload}>
-            Submit
+          <button
+            type="submit"
+            className="submit-button"
+            onClick={handleFinalUpload}
+            disabled={isUploading}
+          >
+            {isUploading ? 'Uploading...' : 'Submit'}
           </button>
+
+          {successMessage && (
+            <div className="success-message">
+              {successMessage}
+            </div>
+          )}
+
         </form>
       </div>
     </div>
