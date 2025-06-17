@@ -232,7 +232,9 @@ const UploadPage: React.FC = () => {
           }),
         });
 
-        
+        if(!res.ok){
+          console.log('api faild')
+        }
         
         
         const responseEvent = await res.json();
