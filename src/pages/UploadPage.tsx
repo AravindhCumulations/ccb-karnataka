@@ -221,19 +221,16 @@ const UploadPage: React.FC = () => {
       errMess += " " + file.type;
       try {
         // Step 1: Get Signed URL from your Node.js backend
-        // const res = await fetch('https://erbmnx9dfg.execute-api.us-east-1.amazonaws.com/stage1/', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({
-        //     fileName: file.name,
-        //     fileType: file.type,
-        //   }),
-        // });
-
-        const res = await fetch('https://dummyjson.com/posts')
-        
+        const res = await fetch('https://erbmnx9dfg.execute-api.us-east-1.amazonaws.com/stage1/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fileName: file.name,
+            fileType: file.type,
+          }),
+        });
 
         
         
@@ -242,34 +239,33 @@ const UploadPage: React.FC = () => {
         console.log('response=',responseEvent,typeof responseEvent.body === 'string')
 
         // Parse the nested JSON string
-        // const body = typeof responseEvent.body === 'string'
-        //   ? JSON.parse(responseEvent.body)
-        //   : responseEvent.body;
+        const body = typeof responseEvent.body === 'string'
+          ? JSON.parse(responseEvent.body)
+          : responseEvent.body;
         
-        // const signedUrl = body.signedUrl;
-        // const fileUrl = body.fileUrl;
+        const signedUrl = body.signedUrl;
+        const fileUrl = body.fileUrl;
 
-        // errMess += " " + JSON.stringify(body)
-        // errMess += " " + signedUrl;
+        errMess += " " + JSON.stringify(body)
+        errMess += " " + signedUrl;
         
         // Step 2: Upload the file to the signed URL
         
-        // const uploadRes = await fetch(signedUrl, {
-        //   method: 'PUT',
-        //   headers: {
-        //     'Content-Type': file.type,           // MUST match the type used during URL generation
-        //   },
-        //   body: file,
-        // });
+        const uploadRes = await fetch(signedUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': file.type,           // MUST match the type used during URL generation
+          },
+          body: file,
+        });
         
     
-        // if (!uploadRes.ok) {
-        //   throw new Error('Upload failed');
-        // }
+        if (!uploadRes.ok) {
+          throw new Error('Upload failed');
+        }
     
         // Step 3: Use fileUrl as your uploaded public file path
-        // return fileUrl;
-        return 'hi'
+        return fileUrl;
       } catch (err) {
         console.error('Upload error:', err,errMess);
         errMess += " " + err
@@ -338,7 +334,7 @@ const UploadPage: React.FC = () => {
         // Upload Video
         let uploadedVideoUrl: string | null = null;
         if (uploadedVideo) {
-          uploadedVideoUrl = await uploadToS3(uploadedVideo)??'';
+          uploadedVideoUrl = await uploadToS3(uploadedVideo);
           console.log('Uploaded Video:', uploadedVideoUrl);
         }
     
@@ -349,7 +345,7 @@ const UploadPage: React.FC = () => {
           const audioFile = new File([audioBlob], 'recording.webm', {
             type: audioBlob.type,
           });
-          uploadedAudioUrl = await uploadToS3(audioFile)??'';
+          uploadedAudioUrl = await uploadToS3(audioFile);
           console.log('Uploaded Audio:', uploadedAudioUrl);
         }
     
