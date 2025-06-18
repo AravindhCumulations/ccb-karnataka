@@ -4,7 +4,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import UploadPage from './pages/UploadPage'; // import your new page
 import MainPage from './pages/MainPage';
-
+import { OtpPage } from './pages/OtpPage';
 
 const App: React.FC = () => {
   return (
@@ -12,6 +12,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/upload" element={<UploadPage />} />
         <Route path='/' element={<MainPage/>} />
+        <Route path='/otp' element={<OtpPage/>} />
       </Routes>
     </Router>
   );

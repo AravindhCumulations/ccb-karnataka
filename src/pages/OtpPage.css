@@ -1,0 +1,320 @@
+/* Container and mobile frame */
+.otp-container {
+    background: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .otp-mobile-frame {
+    background: white;
+    width: 375px;
+    height: 812px;
+    position: relative;
+  }
+  
+  /* Header styles */
+  .otp-header {
+    display: flex;
+    flex-direction: column;
+    width: 375px;
+    height: 33px;
+    align-items: flex-start;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #263588;
+  }
+  
+  .otp-language-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+  }
+  
+  .otp-language-text {
+    position: relative;
+    width: fit-content;
+    margin-top: -1px;
+    font-weight: normal;
+    color: white;
+    font-size: 14px;
+    letter-spacing: 0;
+  }
+  
+  /* Organization section */
+  .otp-org-section {
+    display: flex;
+    flex-direction: column;
+    width: 375px;
+    align-items: flex-start;
+    position: absolute;
+    top: 39px;
+    left: 0;
+  }
+  
+  .otp-org-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+  
+  /* Main content */
+  .otp-main-content {
+    display: flex;
+    flex-direction: column;
+    width: 343px;
+    align-items: flex-start;
+    gap: 20px;
+    position: absolute;
+    top: 165px;
+    left: 16px;
+  }
+  
+  /* Report header */
+  .otp-report-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+  }
+  
+  .otp-title-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+  }
+  
+  .otp-back-icon {
+    width: 24px;
+    height: 24px;
+    color: #343434;
+  }
+  
+  .otp-title {
+    position: relative;
+    width: fit-content;
+    margin-top: -1px;
+    font-weight: 600;
+    color: #343434;
+    font-size: 20px;
+    line-height: 30px;
+    white-space: nowrap;
+  }
+  
+  /* Security card */
+  .otp-security-card {
+    width: 343px;
+    background: #708897;
+    border-radius: 12px;
+    border: none;
+  }
+  
+  .otp-security-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+  }
+  
+  .otp-shield-icon {
+    width: 24px;
+    height: 24px;
+    color: white;
+  }
+  
+  .otp-security-text {
+    position: relative;
+    flex: 1;
+    margin-top: -1px;
+    font-size: 12px;
+    line-height: 18px;
+  }
+  
+  .otp-security-normal {
+    font-weight: 500;
+    color: #e6e6e6;
+  }
+  
+  .otp-security-bold {
+    font-weight: bold;
+    color: white;
+  }
+  
+  /* Mobile number section */
+  .otp-mobile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+  }
+  
+  .otp-mobile-label {
+    position: relative;
+    align-self: stretch;
+    margin-top: -1px;
+    font-weight: 600;
+    color: #343434;
+    font-size: 16px;
+    line-height: 24px;
+  }
+  
+  .otp-mobile-input-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+  }
+  
+  .otp-country-code {
+    display: inline-flex;
+    flex-direction: column;
+    height: 53px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 9px 12px;
+    position: relative;
+    background: #f5f5f5;
+    border-radius: 12px;
+  }
+  
+  .otp-country-code-text {
+    position: relative;
+    width: fit-content;
+    font-weight: 500;
+    color: #343434;
+    font-size: 16px;
+    line-height: 24px;
+    white-space: nowrap;
+  }
+  
+  .otp-mobile-input {
+    position: relative;
+    width: 285px;
+    height: 53px;
+    background: #f5f5f5;
+    border-radius: 12px;
+    border: none;
+    font-family: Inter;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 16%;
+    color: #343434;
+    padding: 0px 5px;
+  }
+  
+  /* Buttons */
+  .otp-send-button,
+  .otp-next-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 10px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+    background: #26358866;
+    border-radius: 12px;
+    border: none;
+  }
+  
+  .otp-button-text {
+    position: relative;
+    width: fit-content;
+    margin-top: -1px;
+    font-weight: 600;
+    color: white;
+    font-size: 18px;
+    line-height: 27px;
+    white-space: nowrap;
+  }
+  
+  /* OTP input section */
+  .otp-input-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+  }
+  
+  .otp-input-container {
+    display: flex;
+    flex-direction: column;
+    width: 343px;
+    align-items: flex-start;
+    gap: 20px;
+    position: relative;
+  }
+  
+  .otp-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+  }
+  
+  .otp-input-label {
+    position: relative;
+    align-self: stretch;
+    margin-top: -1px;
+    font-weight: 600;
+    color: #40404066;
+    font-size: 16px;
+    line-height: 24px;
+  }
+  
+  .otp-input-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+  }
+  
+  .otp-input-group {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+  }
+  
+  .otp-slot {
+    display: flex;
+    width: 60px;
+    height: 53px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 9px 12px;
+    position: relative;
+    background: #f5f5f5;
+    border-radius: 12px;
+    font-weight: 500;
+    color: #65656566;
+    font-size: 16px;
+  }
