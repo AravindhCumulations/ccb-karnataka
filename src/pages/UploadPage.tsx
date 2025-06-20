@@ -50,10 +50,10 @@ const UploadPage: React.FC = () => {
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    const validFiles = files.filter(file => file.size <= 1024 * 1024); // 1MB
+    const validFiles = files.filter(file => file.size <= 10 * 1024 * 1024); // 10MB
   
     if (validFiles.length !== files.length) {
-      alert("Some images were too large (max 1MB). Only smaller images are accepted.");
+      alert("Some images were too large (max 10MB). Only smaller images are accepted.");
     }
   
     setUploadedPhotos(prev => [...prev, ...validFiles]);
