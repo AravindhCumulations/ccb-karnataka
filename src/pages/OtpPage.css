@@ -318,3 +318,9 @@
     color: #65656566;
     font-size: 16px;
   }
+
+.otp-error-text {
+  color: red;
+  font-size: 14px;
+  margin-top: 8px;
+}

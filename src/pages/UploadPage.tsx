@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import './UploadPage.css'
 import AppHeader from '../components/AppHeader';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import RecordRTC from 'recordrtc';
 // import { FFmpeg } from '@ffmpeg/ffmpeg';
 // import { fetchFile } from '@ffmpeg/util';
@@ -19,7 +19,10 @@ import RecordRTC from 'recordrtc';
 
 const UploadPage: React.FC = () => {
   const navigate = useNavigate();
-    const [mobileNumber, setMobileNumber] = useState('');
+  const location = useLocation();
+  const initialMobileNumber = location.state?.mobileNumber || '';
+  const [mobileNumber, setMobileNumber] = useState(initialMobileNumber);
+  const isMobileDisabled = !!initialMobileNumber;
   const [email, setEmail] = useState('');
   const [issueLocation, setIssueLocation] = useState('');
   const [loadingLocation, setLoadingLocation] = useState(false);
@@ -55,33 +58,6 @@ const UploadPage: React.FC = () => {
   
     setUploadedPhotos(prev => [...prev, ...validFiles]);
   };
-  
-
-  // const handleVideoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = event.target.files?.[0];
-  //   if (!file) return;
-  //   console.log("handle video upload");
-    
-  //   if (file.size > 60 * 1024 * 1024) {
-  //     alert("Video must be smaller than 60MB.");
-  //     return;
-  //   }
-  
-  //   const compressed = await compressVideo(file);
-  //   if (!compressed) {
-  //     alert("Compression failed.");
-  //     return;
-  //   }
-  //   console.log("compressed");
-    
-  //   setUploadedVideo(compressed);
-  //   setVideoURL(URL.createObjectURL(compressed));
-  //   console.log((compressed.size / (1024 * 1024)).toFixed(2));
-  //   setVideoSizeMB((compressed.size / (1024 * 1024)).toFixed(2));
-  // };
-  
-  
-
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,15 +194,22 @@ const UploadPage: React.FC = () => {
 
     const uploadToS3 = async (file: File) => {
       try {
+        
         // Step 1: Get Signed URL from your Node.js backend
         const res = await fetch('https://erbmnx9dfg.execute-api.us-east-1.amazonaws.com/stage1/', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            fileName: file.name,
-            fileType: file.type,
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem('jwt')
+            },
+            body: {
+              fileName: file.name,
+              fileType: file.type,
+            },
+            httpMethod: "POST"
           }),
         });
         
@@ -239,6 +222,9 @@ const UploadPage: React.FC = () => {
         
         const signedUrl = body.signedUrl;
         const fileUrl = body.fileUrl;
+
+        console.log("signedUrl " + signedUrl);
+        console.log("fileUrl " + fileUrl);
         
         // Step 2: Upload the file to the signed URL
         
@@ -262,42 +248,6 @@ const UploadPage: React.FC = () => {
       }
     };
 
-    // const ffmpeg = new FFmpeg();
-    // const compressVideo = async (file: File): Promise<File | null> => {
-    //   console.log("compressing");
-      
-    //   if (!ffmpeg.loaded) {
-    //     await ffmpeg.load({
-    //       coreURL: 'https://unpkg.com/@ffmpeg/core@0.12.4/dist/ffmpeg-core.js', // 🛠️ fix import error
-    //     });
-    //   }
-    //   ffmpeg.on('log', ({ message }) => console.log('[ffmpeg]', message));
-
-    //   await ffmpeg.writeFile('input.mp4', await fetchFile(file));
-    //   const files = await ffmpeg.listDir('/');
-    //   console.log('FS:', files);
-
-    //   console.time('ffmpeg_exec');
-    //   await ffmpeg.exec([
-    //     '-i', 'input.mp4',
-    //     '-vf', 'scale=-2:480',
-    //     '-c:v', 'libx264',
-    //     '-preset', 'fast',
-    //     '-crf', '28',
-    //     '-b:v', '500k',
-    //     '-c:a', 'aac',
-    //     '-b:a', '128k',
-    //     'output.mp4'
-    //   ]);
-    //   console.timeEnd('ffmpeg_exec');
-    //   console.log("compress 480");
-      
-
-    //   const data = await ffmpeg.readFile('output.mp4'); // ✅ Uint8Array
-    //   const blob = new Blob([data], { type: 'video/mp4' }); // ✅ Correct use
-    //   return new File([blob], 'compressed_' + file.name, { type: 'video/mp4' });
-    // };
-
     const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
@@ -310,6 +260,43 @@ const UploadPage: React.FC = () => {
       setUploadedVideo(file);
     };
     
+    const submitFormData = async ({
+      email,
+      mobileNumber,
+      location,
+      audioUrls,
+      photoUrls,
+      videoUrls,
+      additionalNotes,
+    }: {
+      email: string;
+      mobileNumber: string;
+      location: string;
+      audioUrls: string[];
+      photoUrls: string[];
+      videoUrls: string[];
+      additionalNotes: string;
+    }) => {
+      const res = await fetch('https://4ms2bettk2.execute-api.us-east-1.amazonaws.com/v1/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Add auth headers if needed
+        },
+        body: JSON.stringify({
+          email,
+          mobile_number: mobileNumber,
+          location: location,
+          audio_urls: audioUrls,
+          photo_urls: photoUrls,
+          video_urls: videoUrls,
+          additional_notes: additionalNotes,
+        }),
+      });
+      if (!res.ok) throw new Error('Form submission failed');
+      return res.json();
+    };
+
     const handleFinalUpload = async () => {
       setIsUploading(true);
       setSuccessMessage('');
@@ -321,16 +308,14 @@ const UploadPage: React.FC = () => {
             return await uploadToS3(photo);
           })
         );
-        console.log('Uploaded Photos:', uploadedPhotoUrls);
-    
+
         // Upload Video
         let uploadedVideoUrl: string | null = null;
         if (uploadedVideo) {
           uploadedVideoUrl = await uploadToS3(uploadedVideo);
-          console.log('Uploaded Video:', uploadedVideoUrl);
         }
-    
-        // Upload Audio (from audioUrl Blob)
+
+        // Upload Audio
         let uploadedAudioUrl: string | null = null;
         if (audioUrl) {
           const audioBlob = await fetch(audioUrl).then(res => res.blob());
@@ -338,24 +323,34 @@ const UploadPage: React.FC = () => {
             type: audioBlob.type,
           });
           uploadedAudioUrl = await uploadToS3(audioFile);
-          console.log('Uploaded Audio:', uploadedAudioUrl);
         }
 
-        // ✅ Clear file states after success
+        // Call your backend API with all the data
+        await submitFormData({
+          email,
+          mobileNumber,
+          location: issueLocation,
+          audioUrls: uploadedAudioUrl ? [uploadedAudioUrl] : [],
+          photoUrls: uploadedPhotoUrls.filter(Boolean) as string[],
+          videoUrls: uploadedVideoUrl ? [uploadedVideoUrl] : [],
+          additionalNotes,
+        });
+
+        // Clear file states after success
         setAudioUrl(null);
         setUploadedPhotos([]);
         setUploadedVideo(null);
         setSuccessMessage('Files uploaded successfully!');
-        setEmail('')
-        setAudioUrl('')
-        setMobileNumber('')
-        setAdditionalNotes('')
-        setIssueLocation('')
-        setIsUploading(false)
-        setRecordingTime('00.00')
-        // ✅ Use the uploaded URLs as needed (e.g. send to backend)
+        setEmail('');
+        setAudioUrl('');
+        setMobileNumber('');
+        setAdditionalNotes('');
+        setIssueLocation('');
+        setIsUploading(false);
+        setRecordingTime('00.00');
       } catch (err) {
         console.error('Upload failed:', err);
+        setIsUploading(false);
       }
     };
     
@@ -394,6 +389,7 @@ const UploadPage: React.FC = () => {
                 onChange={(e) => setMobileNumber(e.target.value)}
                 placeholder="Enter Mobile Number"
                 className="mobile-number-input"
+                disabled={isMobileDisabled}
               />
             </div>
             <p className="form-help-text">Your Mobile Number will be kept private and confidential</p>
@@ -537,42 +533,6 @@ const UploadPage: React.FC = () => {
               </div>
             )}
           </div>
-
-
-          {/* Upload Video Section
-          <div className="form-field">
-            <label className="form-label">Upload Video (max 5MB)</label>
-            <div onClick={() => videoInputRef.current?.click()} className="upload-container">
-              <div className="upload-content">
-                <Video />
-                <span className="upload-text">{uploadedVideo?.name || 'Upload Video'}</span>
-              </div>
-            </div>
-            <input
-              ref={videoInputRef}
-              type="file"
-              accept="video/*"
-              onChange={handleVideoUpload}
-              className="upload-input"
-            />
-            {uploadedVideo && videoURL && (
-              <div className="video-preview-wrapper">
-                <video controls width="100%">
-                  <source src={videoURL} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-                <p>Size: {videoSizeMB} MB</p>
-                <button onClick={() => {
-                  setUploadedVideo(null);
-                  setVideoURL(null);
-                  setVideoSizeMB(null);
-                }}>
-                  &times;
-                </button>
-              </div>
-            )}
-          </div> */}
-
 
           {/* Additional Notes Section */}
           <div className="form-field">

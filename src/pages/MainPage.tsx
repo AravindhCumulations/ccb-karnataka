@@ -54,7 +54,7 @@ const MainPage: React.FC = () => {
 
       {/* Information Upload Button */}
       <div className="content-padding">
-        <button className="upload-button" onClick={() => navigate('/upload')}>
+        <button className="upload-button" onClick={() => navigate('/otp')}>
           
           Information Upload
         </button>

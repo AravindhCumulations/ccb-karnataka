@@ -1,5 +1,6 @@
 import { ArrowLeftIcon, ShieldIcon } from "lucide-react";
-import { useState, type JSX } from "react";
+import React, { useState, type JSX } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../components/button";
 import { Card, CardContent } from "../components/card";
 import { Input } from "../components/input";
@@ -16,6 +17,99 @@ export const OtpPage = (): JSX.Element => {
   
   // State for OTP value
   const [otp, setOtp] = useState('');
+  // State for mobile number input
+  const [mobileNumber, setMobileNumber] = useState('');
+  // State for Send OTP button disabled and timer
+  const [isSending, setIsSending] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  // Timer effect for cooldown
+  React.useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    if (cooldown > 0) {
+      timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [cooldown]);
+
+  // Validate mobile number (simple 10 digit check)
+  const isMobileValid = /^\d{10}$/.test(mobileNumber);
+
+  // Validate OTP (4 digits)
+  const isOtpValid = /^\d{4}$/.test(otp);
+
+  // Send OTP handler
+  const handleSendOtp = async () => {
+    if (!isMobileValid || isSending || cooldown > 0) return;
+    setIsSending(true);
+    setCooldown(60);
+    const body = { mobileNumber };
+    console.log('Sending OTP request:', body);
+    try {
+      const response = await fetch('https://rt9aw69d52.execute-api.us-east-1.amazonaws.com/v1/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      console.log('OTP API response:', data);
+    } catch (error) {
+      console.error('OTP API error:', error);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  // Send entered OTP to verify endpoint
+  const handleVerifyOtp = async () => {
+    if (!isMobileValid || !isOtpValid) return;
+    setError('');
+    console.log(mobileNumber);
+    
+    const body = { mobileNumber, otp };
+    console.log('Verifying OTP:', body);
+    try {
+      const response = await fetch('https://7tsu1yfegg.execute-api.us-east-1.amazonaws.com/v1/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      // const response = await fetch('https://7tsu1yfegg.execute-api.us-east-1.amazonaws.com/v1/', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   credentials: 'include',
+      //   body: JSON.stringify(body),
+      // });
+      
+      const responseData = await response.json();
+      console.log("response status code " + responseData.statusCode);
+      
+      if (responseData.statusCode === 200) {
+        const data = responseData;
+        console.log('OTP verification response:', data);
+        if (data.body) {
+          const jwt = JSON.parse(data.body)
+          
+          localStorage.setItem('jwt', jwt.jwt);
+          navigate('/upload', { state: { mobileNumber } });
+        } else {
+          console.error('No token found in response');
+          setError('An unexpected error occurred.');
+        }
+      } else if (responseData.statusCode === 401) {
+        setError('Invalid OTP. Please try again.');
+      } else {
+        console.error('OTP verification failed with status:', response.status);
+        setError('An unexpected error occurred.');
+      }
+    } catch (error) {
+      console.error('OTP verification error:', error);
+      setError('Failed to verify OTP. Please check your connection.');
+    }
+  };
 
   return (
     <div className="otp-container">
@@ -82,6 +176,11 @@ export const OtpPage = (): JSX.Element => {
               <Input
                 className="otp-mobile-input px-2"
                 aria-label="Phone number"
+                value={mobileNumber}
+                onChange={e => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="Enter 10-digit number"
+                maxLength={10}
+                inputMode="numeric"
               />
             </div>
           </div>
@@ -89,10 +188,11 @@ export const OtpPage = (): JSX.Element => {
           {/* Send OTP button */}
           <Button
             className="otp-send-button"
-            disabled
+            onClick={handleSendOtp}
+            disabled={!isMobileValid || isSending || cooldown > 0}
           >
             <span className="otp-button-text">
-              Send OTP
+              {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Send OTP'}
             </span>
           </Button>
 
@@ -119,6 +219,7 @@ export const OtpPage = (): JSX.Element => {
                     ))}
                   </InputOTPGroup>
                 </InputOTP>
+                {error && <p className="otp-error-text">{error}</p>}
               </div>
             </div>
           </div>
@@ -126,7 +227,8 @@ export const OtpPage = (): JSX.Element => {
           {/* Next button */}
           <Button
             className="otp-next-button"
-            disabled
+            onClick={handleVerifyOtp}
+            disabled={!isMobileValid || !isOtpValid}
           >
             <span className="otp-button-text">
               Next
