@@ -9,7 +9,6 @@ import {
   Video, 
 } from 'lucide-react';
 import './UploadPage.css'
-import AppHeader from '../components/AppHeader';
 import { useNavigate, useLocation } from 'react-router-dom';
 import RecordRTC from 'recordrtc';
 // import { FFmpeg } from '@ffmpeg/ffmpeg';
