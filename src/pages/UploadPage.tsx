@@ -365,7 +365,7 @@ const UploadPage: React.FC = () => {
 
   return (
     <div className="app-container">
-      <AppHeader />
+      
 
       {/* Form Container */}
       <div className="form-container">
@@ -376,6 +376,16 @@ const UploadPage: React.FC = () => {
             <h2 className="form-title">Information Upload</h2>
           </div>
 
+          {/* Organization info bar - replaced with image */}
+        <section className="otp-org-section">
+          <img
+            className="otp-org-image"
+            alt="CCB Anti-Narcotics Bengaluru"
+            src="/Frame 1000003741 (1).svg"
+          />
+        </section>
+          
+ 
           {/* Mobile Number Section */}
           <div className="form-field">
             <label className="form-label">Mobile number</label>
@@ -396,7 +406,7 @@ const UploadPage: React.FC = () => {
           </div>
 
           {/* Email ID Section */}
-          <div className="form-field">
+          {/* <div className="form-field">
             <label className="form-label">E-mail ID</label>
             <input
               type="email"
@@ -406,7 +416,7 @@ const UploadPage: React.FC = () => {
               className="standard-input"
             />
             <p className="form-help-text">Your Mail ID will be kept private and confidential</p>
-          </div>
+          </div> */}
 
           {/* Issue Location Section */}
           <div className="form-field" style={{ position: 'relative' }}>

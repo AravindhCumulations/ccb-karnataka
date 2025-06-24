@@ -26,13 +26,13 @@ const MainPage: React.FC = () => {
       <div className="content-padding">
         <div className="video-container">
           <div className="video-content">
-            <iframe
-              src="https://www.youtube.com/embed/tgbNymZ7vqY"
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
+          <iframe
+          src="https://www.youtube.com/embed/AMH9rfnKD9U"
+          title="TV9 Anti-Drug Awareness Campaign"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        ></iframe>
 
             {/* <div className="youtube-badge">
               <span className="play-icon">▶</span>
