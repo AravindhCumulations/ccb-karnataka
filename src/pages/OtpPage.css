@@ -324,3 +324,10 @@
   font-size: 14px;
   margin-top: 8px;
 }
+
+.otp-send-button.enabled,
+.otp-next-button.enabled,
+.otp-send-button:not(:disabled),
+.otp-next-button:not(:disabled) {
+  background: #263588;
+}

@@ -23,6 +23,7 @@ export const OtpPage = (): JSX.Element => {
   const [isSending, setIsSending] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const [error, setError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
   const navigate = useNavigate();
 
   // Timer effect for cooldown
@@ -66,8 +67,8 @@ export const OtpPage = (): JSX.Element => {
   const handleVerifyOtp = async () => {
     if (!isMobileValid || !isOtpValid) return;
     setError('');
+    setIsVerifying(true);
     console.log(mobileNumber);
-    
     const body = { mobileNumber, otp };
     console.log('Verifying OTP:', body);
     try {
@@ -76,23 +77,21 @@ export const OtpPage = (): JSX.Element => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-
+      
       // const response = await fetch('https://7tsu1yfegg.execute-api.us-east-1.amazonaws.com/v1/', {
       //   method: 'POST',
       //   headers: { 'Content-Type': 'application/json' },
       //   credentials: 'include',
       //   body: JSON.stringify(body),
       // });
-      
+
       const responseData = await response.json();
       console.log("response status code " + responseData.statusCode);
-      
       if (responseData.statusCode === 200) {
         const data = responseData;
         console.log('OTP verification response:', data);
         if (data.body) {
           const jwt = JSON.parse(data.body)
-          
           localStorage.setItem('jwt', jwt.jwt);
           navigate('/upload', { state: { mobileNumber } });
         } else {
@@ -108,6 +107,8 @@ export const OtpPage = (): JSX.Element => {
     } catch (error) {
       console.error('OTP verification error:', error);
       setError('Failed to verify OTP. Please check your connection.');
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -137,7 +138,7 @@ export const OtpPage = (): JSX.Element => {
           {/* Report Activity header */}
           <div className="otp-report-header">
             <div className="otp-title-section">
-              <ArrowLeftIcon className="otp-back-icon" />
+              <ArrowLeftIcon className="otp-back-icon" onClick={() => navigate('/')} />
               <h1 className="otp-title">
                 Report Activity
               </h1>
@@ -187,7 +188,7 @@ export const OtpPage = (): JSX.Element => {
 
           {/* Send OTP button */}
           <Button
-            className="otp-send-button"
+            className={`otp-send-button${isMobileValid && !isSending && cooldown === 0 ? ' enabled' : ''}`}
             onClick={handleSendOtp}
             disabled={!isMobileValid || isSending || cooldown > 0}
           >
@@ -226,12 +227,12 @@ export const OtpPage = (): JSX.Element => {
 
           {/* Next button */}
           <Button
-            className="otp-next-button"
+            className={`otp-next-button${isMobileValid && isOtpValid && !isVerifying ? ' enabled' : ''}`}
             onClick={handleVerifyOtp}
-            disabled={!isMobileValid || !isOtpValid}
+            disabled={!isMobileValid || !isOtpValid || isVerifying}
           >
             <span className="otp-button-text">
-              Next
+              {isVerifying ? 'Verifying...' : 'Next'}
             </span>
           </Button>
         </main>
