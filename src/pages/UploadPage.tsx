@@ -168,28 +168,28 @@ const UploadPage: React.FC = () => {
       //   return;
       // }
     
-      try {
-        const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&addressdetails=1&limit=5&countrycodes=in`,
-          {
-            headers: {
-              'Accept': 'application/json',
-            },
-          }
-        );
+      // try {
+      //   const response = await fetch(
+      //     `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&addressdetails=1&limit=5&countrycodes=in`,
+      //     {
+      //       headers: {
+      //         'Accept': 'application/json',
+      //       },
+      //     }
+      //   );
     
-        const data = await response.json();
-        console.log(data);
-        // if (Array.isArray(data)) {
-        //   setSuggestions(data);
-        //   setShowSuggestions(true);
-        // } else {
-        //   setSuggestions([]);
-        // }
-      } catch (error) {
-        console.error('Autocomplete failed:', error);
-        // setSuggestions([]);
-      }
+      //   const data = await response.json();
+      //   console.log(data);
+      //   // if (Array.isArray(data)) {
+      //   //   setSuggestions(data);
+      //   //   setShowSuggestions(true);
+      //   // } else {
+      //   //   setSuggestions([]);
+      //   // }
+      // } catch (error) {
+      //   console.error('Autocomplete failed:', error);
+      //   // setSuggestions([]);
+      // }
     };
 
     const uploadToS3 = async (file: File) => {
@@ -359,7 +359,12 @@ const UploadPage: React.FC = () => {
       }
     };
     
-    
+    function maskMobileNumber(number: string) {
+      if (!number || number.length < 2) return number; // handle edge case
+      const visible = number.slice(0, 2);
+      const masked = '*'.repeat(number.length - 2);
+      return visible + masked;
+    }
 
     // const handleSuggestionSelect = (item: any) => {
     //   setIssueLocation(item.display_name);
@@ -407,7 +412,7 @@ const UploadPage: React.FC = () => {
               </div>
               <input
                 type="tel"
-                value={mobileNumber}
+                value={maskMobileNumber(mobileNumber)}
                 onChange={(e) => setMobileNumber(e.target.value)}
                 placeholder="Enter Mobile Number"
                 className="mobile-number-input"

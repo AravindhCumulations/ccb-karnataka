@@ -45,7 +45,7 @@ const HomePage: React.FC = () => {
                 </div>
                 <div className="home-minister-avatar">
                   <img 
-                    src="/karnHM.svg"
+                    src="/karnatakaHM.jpeg"
                     alt="Dr. G Parameshwara"
                     className="home-avatar-image"
                   />
