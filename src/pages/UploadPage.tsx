@@ -21,7 +21,7 @@ const UploadPage: React.FC = () => {
   const location = useLocation();
   const initialMobileNumber = location.state?.mobileNumber || '';
   const [mobileNumber, setMobileNumber] = useState(initialMobileNumber);
-  const isMobileDisabled = !!initialMobileNumber;
+  // const isMobileDisabled = !!initialMobileNumber;
   const [email, setEmail] = useState('');
   const [issueLocation, setIssueLocation] = useState('');
   const [loadingLocation, setLoadingLocation] = useState(false);
@@ -359,12 +359,12 @@ const UploadPage: React.FC = () => {
       }
     };
     
-    function maskMobileNumber(number: string) {
-      if (!number || number.length < 2) return number; // handle edge case
-      const visible = number.slice(0, 2);
-      const masked = '*'.repeat(number.length - 2);
-      return visible + masked;
-    }
+    // function maskMobileNumber(number: string) {
+    //   if (!number || number.length < 2) return number; // handle edge case
+    //   const visible = number.slice(0, 2);
+    //   const masked = '*'.repeat(number.length - 2);
+    //   return visible + masked;
+    // }
 
     // const handleSuggestionSelect = (item: any) => {
     //   setIssueLocation(item.display_name);
@@ -404,7 +404,7 @@ const UploadPage: React.FC = () => {
           </div>
  
           {/* Mobile Number Section */}
-          <div className="form-field mobile-input-form">
+          {/* <div className="form-field mobile-input-form">
             <label className="form-label">Mobile number</label>
             <div className="mobile-input-container">
               <div className="country-code-box">
@@ -420,7 +420,7 @@ const UploadPage: React.FC = () => {
               />
             </div>
             <p className="form-help-text">Your Mobile Number will be kept private and confidential</p>
-          </div>
+          </div> */}
 
           {/* Email ID Section */}
           {/* <div className="form-field">
