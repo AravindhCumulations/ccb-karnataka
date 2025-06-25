@@ -7,6 +7,7 @@ import UploadPage from './pages/UploadPage'; // import your new page
 import { OtpPage } from './pages/OtpPage';
 import ThanksPage from './pages/ThanksPage';
 import HomePage from './pages/HomePage';
+import RehabListPage from './pages/ReactListPage';
 
 const App: React.FC = () => {
   return (
@@ -17,6 +18,7 @@ const App: React.FC = () => {
         <Route path='/otp' element={<OtpPage/>} />
         <Route path='/thanks' element={<ThanksPage/>} />
         <Route path='/' element={<HomePage/>} />
+        <Route path='/rehab-list' element={<RehabListPage/>} />
       </Routes>
     </Router>
   );

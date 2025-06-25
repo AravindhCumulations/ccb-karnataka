@@ -1,0 +1,74 @@
+.rehab-page {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    padding: 20px;
+    margin: 0;
+    min-height: 100vh;
+  }
+  
+  .rehab-page h1 {
+    color: #333;
+    font-size: 1.5em;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .rehab-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 600px;
+  }
+  
+  .rehab-item {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    padding: 0px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .rehab-item:hover {
+    transform: scale(1.02);
+  }
+  
+  .rehab-item a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    font-size: 1.1em;
+    display: block;
+    padding: 15px;
+  }
+  
+  @media (max-width: 480px) {
+  
+    .rehab-item a {
+      font-size: 1em;
+    }
+  
+    .rehab-page h1 {
+      font-size: 1.3em;
+    }
+  }
+  
+  .rehab-back-btn {
+    background: none;
+    border: none;
+    color: #263588;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 16px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background 0.2s, color 0.2s;
+  }
+  
+  .rehab-back-btn:hover {
+    background: #263588;
+    color: #fff;
+  }
+  

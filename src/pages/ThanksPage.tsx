@@ -11,10 +11,10 @@ const ThanksPage: React.FC = () => {
     window.open('https://bcp.karnataka.gov.in/en', '_blank');
   };
 
-  const handleRehabCentersClick = () => {
-    // Open rehabilitation centers list
-    window.open('https://rehabilitation-centers.com', '_blank');
-  };
+  // const handleRehabCentersClick = () => {
+  //   // Open rehabilitation centers list
+  //   window.open('https://www.google.com/search?q=bangalore+rehabilitation+near+me&sca_esv=f44c1c969151bea8&ei=by9caPffD5aNvr0PuNru-AE&oq=bangalore+rehabilitation+nea&gs_lp=Egxnd3Mtd2l6LXNlcnAiHGJhbmdhbG9yZSByZWhhYmlsaXRhdGlvbiBuZWEqAggAMgcQIRigARgKSN80UMIMWIYpcAR4AJABAJgB0gKgAa4LqgEHMC4zLjMuMbgBA8gBAPgBAZgCCaAC_gnCAgsQABiABBiwAxiiBMICBhAAGBYYHsICCBAAGIAEGLEDwgIREC4YgAQYsQMYxwEYjgUYrwHCAgsQABiABBiRAhiKBcICBRAAGIAEwgILEAAYgAQYhgMYigXCAggQABiABBiiBMICCBAAGKIEGIkFmAMAiAYBkAYBkgcHNC4yLjIuMaAHki6yBwcwLjIuMi4xuAfICcIHBzItMi41LjLIB4cB&sclient=gws-wiz-serp', '_blank');
+  // };
 
   return (
     <div className="thanks-container">
@@ -85,7 +85,7 @@ const ThanksPage: React.FC = () => {
             <div className="counselling-card">
               <div className="card-content">
                 <p className="card-subtitle">Assistance Required?</p>
-                <button className="counselling-button" onClick={handleRehabCentersClick}>
+                <button className="counselling-button" onClick={() => navigate('/rehab-list')}>
                   List of Rehabilitation Centers
                 </button>
               </div>
