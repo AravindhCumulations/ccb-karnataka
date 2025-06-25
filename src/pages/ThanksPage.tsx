@@ -8,7 +8,7 @@ const ThanksPage: React.FC = () => {
 
   const handleBangalorePoliceClick = () => {
     // Open Bangalore City Police website
-    window.open('https://bangalorepolice.gov.in', '_blank');
+    window.open('https://bcp.karnataka.gov.in/en', '_blank');
   };
 
   const handleRehabCentersClick = () => {
