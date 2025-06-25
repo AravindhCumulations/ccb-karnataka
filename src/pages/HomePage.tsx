@@ -76,14 +76,14 @@ const HomePage: React.FC = () => {
               <div className="home-video-section">
                 <h4 className="home-video-title">Video Message</h4>
                 <div className="home-video-container">
-                  <video 
+                  <iframe 
                     className="home-video-player"
-                    controls
-                    poster="https://images.pexels.com/photos/6077326/pexels-photo-6077326.jpeg?auto=compress&cs=tinysrgb&w=400&h=225&fit=crop"
-                  >
-                    <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
+                    src="https://drive.google.com/file/d/1NNeZ4nMWPLkkgZs0VaEmuL7l81cuVVhV/preview"
+                    width="100%"
+                    height="225"
+                    allow="autoplay"
+                    title="Commissioner Video Message"
+                  ></iframe>
                 </div>
               </div>
                 </div>
