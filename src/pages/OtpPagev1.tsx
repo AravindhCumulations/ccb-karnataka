@@ -256,7 +256,7 @@ export const OtpPagev1 = (): JSX.Element => {
         <div className="loader-overlay">
           <div className="loader-content">
             <div className="loader-spinner"></div>
-            <p className="loader-text">Redirecting to Information Upload...</p>
+            <p className="loader-text">Verifying your mobile number...</p>
           </div>
         </div>
       )}
