@@ -126,6 +126,12 @@ export const OtpPagev1 = (): JSX.Element => {
     }
   };
 
+  const maskMobileNumber = (number: string) => {
+    if (!number) return '';
+    if (number.length <= 2) return number;
+    return '*'.repeat(number.length - 2) + number.slice(-2);
+  };
+
   return (
     <div className="otp-container">
       <div className="otp-mobile-frame">
@@ -191,7 +197,7 @@ export const OtpPagev1 = (): JSX.Element => {
               <Input
                 className="otp-mobile-input px-2"
                 aria-label="Phone number"
-                value={mobileNumber}
+                value={maskMobileNumber(mobileNumber)}
                 onChange={e => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
                 placeholder="Enter 10-digit number"
                 maxLength={10}

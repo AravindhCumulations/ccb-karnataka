@@ -175,6 +175,7 @@ export const OtpPage = (): JSX.Element => {
                 </div>
               </div>
               <Input
+                type="password"
                 className="otp-mobile-input px-2"
                 aria-label="Phone number"
                 value={mobileNumber}
@@ -205,6 +206,7 @@ export const OtpPage = (): JSX.Element => {
                   OTP
                 </label>
                 <InputOTP
+                  type="password"
                   maxLength={4}
                   value={otp}
                   onChange={setOtp}
