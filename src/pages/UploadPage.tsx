@@ -44,6 +44,7 @@ const UploadPage: React.FC = () => {
 
   const [isUploading, setIsUploading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showLoader, setShowLoader] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
 
@@ -299,6 +300,7 @@ const UploadPage: React.FC = () => {
     const handleFinalUpload = async () => {
       setIsUploading(true);
       setSuccessMessage('');
+      setShowLoader(true); // Show loader overlay
 
       try {
         // Upload Photos
@@ -347,9 +349,13 @@ const UploadPage: React.FC = () => {
         setIssueLocation('');
         setIsUploading(false);
         setRecordingTime('00.00');
+        
+        // Navigate to thanks page on success
+        navigate('/thanks');
       } catch (err) {
         console.error('Upload failed:', err);
         setIsUploading(false);
+        setShowLoader(false); // Hide loader on error
       }
     };
     
@@ -364,8 +370,6 @@ const UploadPage: React.FC = () => {
 
   return (
     <div className="app-container">
-      
-
       {/* Form Container */}
       <div className="form-container">
         <form onSubmit={handleSubmit} className="form">
@@ -386,7 +390,7 @@ const UploadPage: React.FC = () => {
           
  
           {/* Mobile Number Section */}
-          <div className="form-field">
+          <div className="form-field mobile-input-form">
             <label className="form-label">Mobile number</label>
             <div className="mobile-input-container">
               <div className="country-code-box">
@@ -473,7 +477,7 @@ const UploadPage: React.FC = () => {
 
           {/* Upload Photo Section */}
           <div className="form-field">
-            <label className="form-label">Upload Photos (max 1MB each)</label>
+            <label className="form-label">Upload Photos (max 10 MB each)</label>
             <div onClick={() => photoInputRef.current?.click()} className="upload-container">
               <div className="upload-content">
                 <ImageIcon />
@@ -512,7 +516,7 @@ const UploadPage: React.FC = () => {
 
           {/* Upload Video Section */}
           <div className="form-field">
-            <label className="form-label">Upload Video (max 5MB)</label>
+            <label className="form-label">Upload Video (max 60 MB)</label>
             <div onClick={() => videoInputRef.current?.click()} className="upload-container">
               <div className="upload-content">
                 <Video />
@@ -558,7 +562,7 @@ const UploadPage: React.FC = () => {
 
           {/* Submit Button */}
           <button
-            type="submit"
+            type="button"
             className="submit-button"
             onClick={handleFinalUpload}
             disabled={isUploading}
@@ -574,6 +578,16 @@ const UploadPage: React.FC = () => {
 
         </form>
       </div>
+      
+      {/* Loader Overlay */}
+      {showLoader && (
+        <div className="loader-overlay">
+          <div className="loader-content">
+            <div className="loader-spinner"></div>
+            <p className="loader-text">Uploading your information...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 

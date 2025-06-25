@@ -75,7 +75,7 @@ const MainPage: React.FC = () => {
       </div>
 
       {/* Counselling Card */}
-      <div className="content-padding">
+      <div className="content-padding counselling-card-container">
         <div className="counselling-card">
           <div className="card-content">
             <p className="card-subtitle">Assistance Required?</p>

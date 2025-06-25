@@ -1,0 +1,321 @@
+/* Container and mobile frame */
+.thanks-container {
+    background: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    min-height: 100vh;
+  }
+  
+  .thanks-mobile-frame {
+    background: white;
+    width: 375px;
+    height: 812px;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Header styles */
+  .thanks-header {
+    display: flex;
+    flex-direction: column;
+    width: 375px;
+    height: 33px;
+    align-items: flex-start;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #263588;
+  }
+  
+  .thanks-language-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+  }
+  
+  .thanks-language-text {
+    position: relative;
+    width: fit-content;
+    margin-top: -1px;
+    font-weight: normal;
+    color: white;
+    font-size: 14px;
+    letter-spacing: 0;
+  }
+  
+  /* Organization section */
+  .thanks-org-section {
+    display: flex;
+    flex-direction: column;
+    width: 375px;
+    align-items: flex-start;
+    position: absolute;
+    top: 39px;
+    left: 0;
+  }
+  
+  .thanks-org-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+  
+  /* Main content */
+  .thanks-main-content {
+    display: flex;
+    flex-direction: column;
+    width: 343px;
+    align-items: flex-start;
+    position: absolute;
+    top: 165px;
+    left: 16px;
+  }
+  
+  /* Report header styles */
+  .thanks-report-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+  }
+  
+  .thanks-title-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+  }
+  
+  .thanks-back-icon {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    color: #374151;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .thanks-back-icon:hover {
+    color: #263588;
+  }
+  
+  .thanks-title {
+    position: relative;
+    flex: 1;
+    margin-top: -1px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 18px;
+    letter-spacing: 0;
+    line-height: normal;
+  }
+  
+  /* Thank you message */
+  .thank-you-message {
+    width: 273px;
+    height: 27px;
+    position: relative;
+    top: 20px;
+    left: 38px;
+    color: #343434;
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  /* Content padding */
+  .content-padding {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  /* Cards */
+  .helpline-card,
+  .counselling-card {
+    width: 344px;
+    height: 179.9px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #794785;
+    padding: 16px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+  
+  .helpline-card:hover,
+  .counselling-card:hover {
+    box-shadow: 0 4px 12px rgba(121, 71, 133, 0.15);
+    transform: translateY(-2px);
+  }
+  
+  .card-content {
+    text-align: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .card-subtitle {
+    color: #6b7280;
+    font-size: 16px;
+    margin-bottom: 8px;
+    font-weight: 400;
+  }
+  
+  .phone-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .phone-icon {
+    width: 32px;
+    height: 32px;
+    color: #ef4444;
+  }
+  
+  .phone-number {
+    font-size: 36px;
+    font-weight: 700;
+    color: #ef4444;
+  }
+  
+  .card-description {
+    color: #6b7280;
+    font-size: 16px;
+    margin-bottom: 16px;
+    font-weight: 400;
+  }
+  
+  .counselling-button {
+    font-size: 16px;
+    background-color: #5a5a7a;
+    color: white;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    min-height: 48px;
+  }
+
+  .assistance-required {
+    margin-bottom: 20px;
+  }
+  
+  .counselling-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #4a4a6a;
+  }
+  
+  .counselling-button:active {
+    transform: translateY(0);
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #794785;
+    border-radius: 2px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #5a5a7a;
+  }
+  
+  /* Focus states for accessibility */
+  button:focus-visible {
+    outline: 2px solid #794785;
+    outline-offset: 2px;
+  }
+  
+  .thanks-back-icon:focus-visible {
+    outline: 2px solid #794785;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  
+  /* Text selection */
+  ::selection {
+    background-color: rgba(121, 71, 133, 0.3);
+    color: inherit;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .thanks-container {
+      padding: 0;
+    }
+    
+    .thanks-mobile-frame {
+      width: 100%;
+      max-width: 375px;
+      margin: 0 auto;
+    }
+  }
+  
+  /* Animation for page load */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .thanks-main-content {
+    animation: fadeInUp 0.6s ease-out;
+  }
+  
+  .helpline-card,
+  .counselling-card {
+    animation: fadeInUp 0.6s ease-out;
+    animation-delay: 0.1s;
+    animation-fill-mode: both;
+  }
+  
+  .helpline-card:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  
+  .counselling-card:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  
+  .counselling-card:nth-child(4) {
+    animation-delay: 0.4s;
+  }
+  
+  .counselling-card:nth-child(5) {
+    animation-delay: 0.5s;
+  }

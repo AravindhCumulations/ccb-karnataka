@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import UploadPage from './pages/UploadPage'; // import your new page
 import MainPage from './pages/MainPage';
 import { OtpPage } from './pages/OtpPage';
+import ThanksPage from './pages/ThanksPage';
 
 const App: React.FC = () => {
   return (
@@ -13,6 +14,7 @@ const App: React.FC = () => {
         <Route path="/upload" element={<UploadPage />} />
         <Route path='/' element={<MainPage/>} />
         <Route path='/otp' element={<OtpPage/>} />
+        <Route path='/thanks' element={<ThanksPage/>} />
       </Routes>
     </Router>
   );

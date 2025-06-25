@@ -374,3 +374,7 @@ button:focus-visible {
   height: 100%;
   border: none;
 }
+
+.counselling-card-container {
+  margin-bottom: 20px;
+}
