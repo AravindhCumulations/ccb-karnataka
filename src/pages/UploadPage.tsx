@@ -372,22 +372,31 @@ const UploadPage: React.FC = () => {
     <div className="app-container">
       {/* Form Container */}
       <div className="form-container">
+        {/* Header with language selection */}
+      <header className="otp-header">
+        <div className="otp-language-bar">
+          <span className="otp-language-text">
+            Kannada
+          </span>
+        </div>
+      </header>
+      
         <form onSubmit={handleSubmit} className="form">
-          {/* Information Upload Header */}
-          <div className="form-header">
-            <ArrowLeft onClick={() => navigate('/')}/>
-            <h2 className="form-title">Information Upload</h2>
-          </div>
 
           {/* Organization info bar - replaced with image */}
-        <section className="otp-org-section">
+        <section className="upload-org-section">
           <img
-            className="otp-org-image"
+            className="upload-org-image"
             alt="CCB Anti-Narcotics Bengaluru"
             src="/Frame 1000003741 (1).svg"
           />
         </section>
           
+        {/* Information Upload Header */}
+        <div className="form-header">
+            <ArrowLeft onClick={() => navigate('/')}/>
+            <h2 className="form-title">Information Upload</h2>
+          </div>
  
           {/* Mobile Number Section */}
           <div className="form-field mobile-input-form">

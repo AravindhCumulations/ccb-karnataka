@@ -134,7 +134,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
   
   /* Content padding */
@@ -142,6 +142,7 @@
     width: 100%;
     display: flex;
     justify-content: center;
+    margin-bottom: 16px;
   }
   
   /* Cards */
