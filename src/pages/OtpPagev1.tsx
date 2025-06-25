@@ -22,6 +22,7 @@ export const OtpPagev1 = (): JSX.Element => {
   // State for Send OTP button disabled and timer
   const [isSending, setIsSending] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [showLoader, setShowLoader] = useState(false);
 //   const [error, setError] = useState('');
 //   const [isVerifying, setIsVerifying] = useState(false);
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ export const OtpPagev1 = (): JSX.Element => {
   const handleSendOtp = async () => {
     if (!isMobileValid || isSending || cooldown > 0) return;
     setIsSending(true);
+    setShowLoader(true);
     setCooldown(60);
     const body = { mobileNumber };
     console.log('Sending OTP request:', body);
@@ -63,7 +65,7 @@ export const OtpPagev1 = (): JSX.Element => {
       }
     } catch (error) {
       console.error('OTP API error:', error);
-      
+      setShowLoader(false);
     } finally {
       setIsSending(false);
     }
@@ -100,20 +102,25 @@ export const OtpPagev1 = (): JSX.Element => {
         if (data.body) {
           const jwt = JSON.parse(data.body)
           localStorage.setItem('jwt', jwt.jwt);
+          setShowLoader(false);
           navigate('/upload', { state: { mobileNumber } });
         } else {
           console.error('No token found in response');
+          setShowLoader(false);
         //   setError('An unexpected error occurred.');
         }
       } else if (responseData.statusCode === 401) {
         // setError('Invalid OTP. Please try again.');
+        setShowLoader(false);
       } else {
         console.error('OTP verification failed with status:', response.status);
         // setError('An unexpected error occurred.');
+        setShowLoader(false);
       }
     } catch (error) {
       console.error('OTP verification error:', error);
       // setError('Failed to verify OTP. Please check your connection.');
+      setShowLoader(false);
     } finally {
     //   setIsVerifying(false);
     }
@@ -245,6 +252,14 @@ export const OtpPagev1 = (): JSX.Element => {
           </Button> */}
         </main>
       </div>
+      {showLoader && (
+        <div className="loader-overlay">
+          <div className="loader-content">
+            <div className="loader-spinner"></div>
+            <p className="loader-text">Redirecting to Information Upload...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
