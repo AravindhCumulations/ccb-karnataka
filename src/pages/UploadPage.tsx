@@ -25,8 +25,8 @@ const UploadPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [issueLocation, setIssueLocation] = useState('');
   const [loadingLocation, setLoadingLocation] = useState(false);
-  const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  // const [suggestions, setSuggestions] = useState<any[]>([]);
+  // const [showSuggestions, setShowSuggestions] = useState(false);
 
   const [additionalNotes, setAdditionalNotes] = useState('');
 
@@ -162,11 +162,11 @@ const UploadPage: React.FC = () => {
       const value = e.target.value;
       setIssueLocation(value);
     
-      if (value.length < 3) {
-        setSuggestions([]);
-        setShowSuggestions(false);
-        return;
-      }
+      // if (value.length < 3) {
+      //   setSuggestions([]);
+      //   setShowSuggestions(false);
+      //   return;
+      // }
     
       try {
         const response = await fetch(
@@ -179,16 +179,16 @@ const UploadPage: React.FC = () => {
         );
     
         const data = await response.json();
-    
-        if (Array.isArray(data)) {
-          setSuggestions(data);
-          setShowSuggestions(true);
-        } else {
-          setSuggestions([]);
-        }
+        console.log(data);
+        // if (Array.isArray(data)) {
+        //   setSuggestions(data);
+        //   setShowSuggestions(true);
+        // } else {
+        //   setSuggestions([]);
+        // }
       } catch (error) {
         console.error('Autocomplete failed:', error);
-        setSuggestions([]);
+        // setSuggestions([]);
       }
     };
 
@@ -361,11 +361,11 @@ const UploadPage: React.FC = () => {
     
     
 
-    const handleSuggestionSelect = (item: any) => {
-      setIssueLocation(item.display_name);
-      setSuggestions([]);
-      setShowSuggestions(false);
-    };
+    // const handleSuggestionSelect = (item: any) => {
+    //   setIssueLocation(item.display_name);
+    //   setSuggestions([]);
+    //   setShowSuggestions(false);
+    // };
     
 
   return (
@@ -440,7 +440,7 @@ const UploadPage: React.FC = () => {
                 onChange={handleLocationChange}
                 placeholder="Enter or detect location"
                 className="location-input"
-                onFocus={() => setShowSuggestions(true)}
+                // onFocus={() => setShowSuggestions(true)}
               />
               <MapPin
                 className="location-icon"
@@ -451,7 +451,7 @@ const UploadPage: React.FC = () => {
             {loadingLocation && <p style={{ fontSize: '12px' }}>📡 Detecting location...</p>}
 
             {/* Suggestion Dropdown */}
-            {showSuggestions && suggestions.length > 0 && (
+            {/* {showSuggestions && suggestions.length > 0 && (
               <ul className="suggestion-list">
                 {suggestions.map((item, idx) => (
                   <li key={idx} onClick={() => handleSuggestionSelect(item)}>
@@ -459,7 +459,7 @@ const UploadPage: React.FC = () => {
                   </li>
                 ))}
               </ul>
-            )}
+            )} */}
           </div>
 
 
