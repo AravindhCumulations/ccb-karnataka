@@ -123,7 +123,7 @@ const HomePage: React.FC = () => {
                     {showVideo && (
                       <iframe
                         className="home-video-player"
-                        src="https://www.youtube.com/embed/sbUehTusRMc?autoplay=1&mute=1"
+                        src="https://www.youtube.com/embed/sbUehTusRMc?autoplay=1&mute=0"
                         title="Commissioner Video Message"
                         allow="autoplay"
                         allowFullScreen
