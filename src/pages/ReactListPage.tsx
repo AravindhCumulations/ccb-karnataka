@@ -9,7 +9,19 @@ const rehabCenters = [
   {
     name: "2. Cadabam's Hospitals",
     link: "https://www.google.com/maps/search/?api=1&query=Cadabam%27s+Hospitals+Bangalore+rehab",
-  }
+  },
+  {
+    name: "3. Abhasa Rehabilitation Centre",
+    link: "https://www.google.com/maps/search/?api=1&query=Abhasa+rehabilitation+centre+Bangalore",
+  },
+  {
+    name: "4. Jagruti Rehabilitation Centre",
+    link: "https://www.google.com/maps/search/?api=1&query=Jagruti+Rehabilitation+Centre+Bangalore",
+  },
+  {
+    name: "5. ZorbaCare Rehabilitation Centre",
+    link: "https://www.google.com/maps/search/?api=1&query=ZorbaCare+rehab+centre+Bangalore",
+  },
 ];
 
 const RehabListPage = () => {
