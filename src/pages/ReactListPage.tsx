@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 
 const rehabCenters = [
   {
-    name: "The Light House",
+    name: "1. The Light House",
     link: "https://www.google.com/maps/search/?api=1&query=The+Light+House+rehab+Bangalore",
   },
   {
-    name: "Cadabam's Hospitals",
+    name: "2. Cadabam's Hospitals",
     link: "https://www.google.com/maps/search/?api=1&query=Cadabam%27s+Hospitals+Bangalore+rehab",
   }
 ];
