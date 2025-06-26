@@ -14,56 +14,6 @@
     position: relative;
   }
   
-  /* Header styles */
-  .otp-header {
-    display: flex;
-    flex-direction: column;
-    width: 375px;
-    height: 33px;
-    align-items: flex-start;
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: #263588;
-  }
-  
-  .otp-language-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-  }
-  
-  .otp-language-text {
-    position: relative;
-    width: fit-content;
-    margin-top: -1px;
-    font-weight: normal;
-    color: white;
-    font-size: 14px;
-    letter-spacing: 0;
-  }
-  
-  /* Organization section */
-  .otp-org-section {
-    display: flex;
-    flex-direction: column;
-    width: 375px;
-    align-items: flex-start;
-    position: absolute;
-    top: 39px;
-    left: 0;
-  }
-  
-  .otp-org-image {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-  }
-  
   /* Main content */
   .otp-main-content {
     display: flex;

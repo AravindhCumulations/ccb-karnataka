@@ -5,17 +5,23 @@ import './AppHeader.css';
 const AppHeader: React.FC = () => {
   return (
     <>
-      {/* Status Bar */}
-      <div className="status-bar">
-        <span>Kannada</span>
-      </div>
+        {/* Header with language selection */}
+        <header className="home-header">
+          <div className="home-language-bar">
+            <span className="home-language-text">
+              Kannada
+            </span>
+          </div>
+        </header>
 
-      {/* Header */}
-      <div className="header">
-        <div className="header-content">
-          <img src="/Frame1000003741.svg" alt="NCB Logo" className="logo-image" />
-        </div>
-      </div>
+        {/* Organization info bar */}
+        <section className="home-org-section">
+          <img
+            className="home-org-image"
+            alt="CCB Anti-Narcotics Bengaluru"
+            src="/Frame 1000003741 (1).svg"
+          />
+        </section>
     </>
   );
 };

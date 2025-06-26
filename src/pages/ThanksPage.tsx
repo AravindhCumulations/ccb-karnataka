@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowLeft, Phone } from 'lucide-react';
 import './ThanksPage.css';
 import { useNavigate } from 'react-router-dom';
+import AppHeader from '../components/AppHeader';
 
 const ThanksPage: React.FC = () => {
   const navigate = useNavigate();
@@ -19,23 +20,7 @@ const ThanksPage: React.FC = () => {
   return (
     <div className="thanks-container">
       <div className="thanks-mobile-frame">
-        {/* Header with language selection */}
-        <header className="thanks-header">
-          <div className="thanks-language-bar">
-            <span className="thanks-language-text">
-              Kannada
-            </span>
-          </div>
-        </header>
-
-        {/* Organization info bar - replaced with image */}
-        <section className="thanks-org-section">
-          <img
-            className="thanks-org-image"
-            alt="CCB Anti-Narcotics Bengaluru"
-            src="/Frame 1000003741 (1).svg"
-          />
-        </section>
+        <AppHeader />
 
         {/* Main content */}
         <main className="thanks-main-content">

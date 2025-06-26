@@ -7,7 +7,7 @@ import UploadPage from './pages/UploadPage'; // import your new page
 import { OtpPage } from './pages/OtpPage';
 import ThanksPage from './pages/ThanksPage';
 import HomePage from './pages/HomePage';
-import RehabListPage from './pages/ReactListPage';
+import RehabListPage from './pages/RehabListPage';
 
 const App: React.FC = () => {
   return (

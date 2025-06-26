@@ -13,7 +13,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import RecordRTC from 'recordrtc';
 // import { FFmpeg } from '@ffmpeg/ffmpeg';
 // import { fetchFile } from '@ffmpeg/util';
-
+import AppHeader from '../components/AppHeader';
 
 
 const UploadPage: React.FC = () => {
@@ -378,24 +378,9 @@ const UploadPage: React.FC = () => {
       {/* Form Container */}
       <div className="form-container">
         {/* Header with language selection */}
-      <header className="otp-header">
-        <div className="otp-language-bar">
-          <span className="otp-language-text">
-            Kannada
-          </span>
-        </div>
-      </header>
+        <AppHeader />
       
         <form onSubmit={handleSubmit} className="form">
-
-          {/* Organization info bar - replaced with image */}
-        <section className="upload-org-section">
-          <img
-            className="upload-org-image"
-            alt="CCB Anti-Narcotics Bengaluru"
-            src="/Frame 1000003741 (1).svg"
-          />
-        </section>
           
         {/* Information Upload Header */}
         <div className="form-header">

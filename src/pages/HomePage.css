@@ -16,56 +16,7 @@
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   }
   
-  /* Header styles */
-  .home-header {
-    display: flex;
-    flex-direction: column;
-    width: 375px;
-    height: 33px;
-    align-items: flex-start;
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: #263588;
-  }
   
-  .home-language-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-  }
-  
-  .home-language-text {
-    position: relative;
-    width: fit-content;
-    margin-top: -1px;
-    font-weight: normal;
-    color: white;
-    font-size: 14px;
-    letter-spacing: 0;
-  }
-  
-  /* Organization section */
-  .home-org-section {
-    display: flex;
-    flex-direction: column;
-    width: 375px;
-    align-items: flex-start;
-    position: absolute;
-    top: 39px;
-    left: 0;
-  }
-  
-  .home-org-image {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    padding-top: 10px;
-  }
   
   /* Main content */
   .home-main-content {

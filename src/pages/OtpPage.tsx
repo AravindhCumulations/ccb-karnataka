@@ -10,6 +10,7 @@ import {
   InputOTPSlot,
 } from "../components/input-otp";
 import "./OtpPage.css";
+import AppHeader from "../components/AppHeader";
 
 export const OtpPage = (): JSX.Element => {
   // Data for OTP inputs
@@ -115,23 +116,7 @@ export const OtpPage = (): JSX.Element => {
   return (
     <div className="otp-container">
       <div className="otp-mobile-frame">
-        {/* Header with language selection */}
-        <header className="otp-header">
-          <div className="otp-language-bar">
-            <span className="otp-language-text">
-              Kannada
-            </span>
-          </div>
-        </header>
-
-        {/* Organization info bar - replaced with image */}
-        <section className="otp-org-section">
-          <img
-            className="otp-org-image"
-            alt="CCB Anti-Narcotics Bengaluru"
-            src="/Frame 1000003741 (1).svg"
-          />
-        </section>
+        <AppHeader />
 
         {/* Main content */}
         <main className="otp-main-content">
