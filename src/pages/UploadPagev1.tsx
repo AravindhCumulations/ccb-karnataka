@@ -5,7 +5,7 @@ import {
   MapPin, 
   Mic, 
   Square, 
-  Image as ImageIcon, 
+  Image as ImageIcon,
   Video, 
 } from 'lucide-react';
 import './UploadPage.css'
@@ -29,9 +29,25 @@ const UploadPage: React.FC = () => {
   const [additionalNotes, setAdditionalNotes] = useState('');
   const [recordingTime, setRecordingTime] = useState('00:00');
   const [isRecording, setIsRecording] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [uploadedPhotos, setUploadedPhotos] = useState<File[]>([]);
-  const [uploadedVideo, setUploadedVideo] = useState<File | null>(null);
+  const [audioFileObj, setAudioFileObj] = useState<{
+    file: File;
+    url: string;
+    signedUrl: string;
+    fileUrl: string;
+    progress: number;
+  } | null>(null);
+  const [uploadedPhotos, setUploadedPhotos] = useState<{
+    file: File;
+    signedUrl: string;
+    fileUrl: string;
+    progress: number;
+  }[]>([]);
+  const [uploadedVideo, setUploadedVideo] = useState<{
+    file: File;
+    signedUrl: string;
+    fileUrl: string;
+    progress: number;
+  } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [showLoader, setShowLoader] = useState(false);
@@ -45,6 +61,7 @@ const UploadPage: React.FC = () => {
   const timerRef = useRef<number | null>(null);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
   const { t } = useTranslation();
+  const [showSuccessTick, setShowSuccessTick] = useState(false);
 
   // --- Effects ---
   useEffect(() => {
@@ -82,23 +99,68 @@ const UploadPage: React.FC = () => {
   }, [snackbar.open]);
 
   // --- Handlers ---
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const getSignedUrl = async (file: File) => {
+    if(!isValidJwt(localStorage.getItem('jwt'))) {
+      setSnackbar({ open: true, message: 'Otp expired' });
+      navigate('/otp', { replace: true });
+      return null;
+    }
+    const res = await fetch('https://erbmnx9dfg.execute-api.us-east-1.amazonaws.com/stage1/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        headers: { Authorization: "Bearer " + localStorage.getItem('jwt') },
+        body: { fileName: file.name, fileType: file.type },
+        httpMethod: "POST"
+      }),
+    });
+    const data = await res.json();
+    if (data.statusCode === 401) {
+      try {
+        if (data && data.body) {
+          setSnackbar({ open: true, message: JSON.parse(data.body).error });
+          navigate('/otp', { replace: true });
+        }
+      } catch {}
+      return null;
+    }
+    const body = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
+    return { signedUrl: body.signedUrl, fileUrl: body.fileUrl };
+  };
+
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     const validFiles = files.filter(file => file.size <= 10 * 1024 * 1024); // 10MB
     if (validFiles.length !== files.length) {
       setSnackbar({ open: true, message: "Some images were too large (max 10MB). Only smaller images are accepted." });
     }
-    setUploadedPhotos(prev => [...prev, ...validFiles]);
+    // Generate signed URLs for each valid file
+    const photoObjs = await Promise.all(validFiles.map(async (file) => {
+      const signed = await getSignedUrl(file);
+      if (!signed) return null;
+      return { file, signedUrl: signed.signedUrl, fileUrl: signed.fileUrl, progress: 0 };
+    }));
+    setUploadedPhotos(prev => {
+      const newPhotos = [...prev, ...photoObjs.filter(Boolean) as any];
+      console.log('[STATE] setUploadedPhotos:', newPhotos);
+      return newPhotos;
+    });
   };
 
-  const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     if (file.size > 60 * 1024 * 1024) {
       setSnackbar({ open: true, message: "Video must be smaller than 5MB." });
       return;
     }
-    setUploadedVideo(file);
+    const signed = await getSignedUrl(file);
+    if (!signed) return;
+    const videoObj = { file, signedUrl: signed.signedUrl, fileUrl: signed.fileUrl, progress: 0 };
+    setUploadedVideo(() => {
+      console.log('[STATE] setUploadedVideo:', videoObj);
+      return videoObj;
+    });
   };
 
   const handleLocationChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,14 +187,25 @@ const UploadPage: React.FC = () => {
         setIsRecording(true);
       } catch (err) {
         setSnackbar({ open: true, message: 'Microphone access denied or not supported' });
-        console.error(err);
       }
     } else {
       setIsRecording(false);
-      recorderRef.current.stopRecording(() => {
+      recorderRef.current.stopRecording(async () => {
         const blob = recorderRef.current.getBlob();
         const url = URL.createObjectURL(blob);
-        setAudioUrl(url);
+        const file = new File([blob], 'recording.webm', { type: blob.type });
+        // Generate signed URL for audio immediately
+        const signed = await getSignedUrl(file);
+        if (!signed) {
+          setSnackbar({ open: true, message: 'Failed to get signed URL for audio.' });
+          setAudioFileObj(null);
+          return;
+        }
+        const audioObj = { file, url, signedUrl: signed.signedUrl, fileUrl: signed.fileUrl, progress: 0 };
+        setAudioFileObj(() => {
+          console.log('[STATE] setAudioFileObj:', audioObj);
+          return audioObj;
+        });
       });
       streamRef.current?.getTracks().forEach((track) => track.stop());
     }
@@ -176,57 +249,6 @@ const UploadPage: React.FC = () => {
   };
 
   // --- Upload Logic ---
-  const uploadToS3 = async (
-    file: File,
-    onProgress?: (percent: number) => void
-  ): Promise<string | undefined> => {
-    try {
-      const res = await fetch('https://erbmnx9dfg.execute-api.us-east-1.amazonaws.com/stage1/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          headers: { Authorization: "Bearer " + localStorage.getItem('jwt') },
-          body: { fileName: file.name, fileType: file.type },
-          httpMethod: "POST"
-        }),
-      });
-      let data = await res.json();
-      if (data.statusCode === 401) {
-        // Try to parse error message from body and show only that
-        try {
-          if (data && data.body) {
-            console.log(JSON.parse(data.body).error);
-            setSnackbar({ open: true, message: JSON.parse(data.body).error });
-          }
-        } catch {}
-        return;
-      }
-      const responseEvent = data;
-      const body = typeof responseEvent.body === 'string'
-        ? JSON.parse(responseEvent.body)
-        : responseEvent.body;
-      const signedUrl = body.signedUrl;
-      const fileUrl = body.fileUrl;
-      if (!signedUrl || !fileUrl) {
-        setSnackbar({ open: true, message: 'Failed to get signed URL for upload.' });
-        return;
-      }
-      await axios.put(signedUrl, file, {
-        headers: { 'Content-Type': file.type },
-        onUploadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            if (onProgress) onProgress(percent);
-          }
-        }
-      });
-      return fileUrl;
-    } catch (err) {
-      console.error('❌ File upload failed:', err);
-      setSnackbar({ open: true, message: 'File upload failed!' });
-    }
-  };
-
   const submitFormData = async ({
     email,
     mobileNumber,
@@ -266,65 +288,72 @@ const UploadPage: React.FC = () => {
     setIsUploading(true);
     setSuccessMessage('');
     setShowLoader(true);
+    setShowSuccessTick(false);
     try {
-      setPhotoProgress(Array(uploadedPhotos.length).fill(0));
-      const uploadedPhotoUrls = await Promise.all(
-        uploadedPhotos.map(async (photo, index) => {
-          const url = await uploadToS3(photo, (percent) => {
-            setPhotoProgress(prev => {
-              const updated = [...prev];
-              updated[index] = percent;
-              return updated;
-            });
-          });
-          if (!url) {
-            // If uploadToS3 already displayed an error (e.g., OTP expired), just return
-            setIsUploading(false);
-            setShowLoader(false);
-            return;
+      // Photos
+      const photoProgressArr = Array(uploadedPhotos.length).fill(0);
+      setPhotoProgress(photoProgressArr);
+      const uploadedPhotoUrls: string[] = [];
+      for (let i = 0; i < uploadedPhotos.length; i++) {
+        const { file, signedUrl, fileUrl } = uploadedPhotos[i];
+        console.log('[UPLOAD] Photo:', { signedUrl, fileUrl });
+        await axios.put(signedUrl, file, {
+          headers: { 'Content-Type': file.type },
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              setPhotoProgress(prev => {
+                const updated = [...prev];
+                updated[i] = percent;
+                return updated;
+              });
+            }
           }
-          return url;
-        })
-      );
-      if (uploadedPhotoUrls.includes(undefined)) return;
-      let uploadedVideoUrl: string = '';
+        });
+        uploadedPhotoUrls.push(fileUrl);
+      }
+      // Video
+      let uploadedVideoUrl = '';
       if (uploadedVideo) {
         setVideoProgress(0);
-        const videoUrl = await uploadToS3(uploadedVideo, (percent) => {
-          setVideoProgress(percent);
+        console.log('[UPLOAD] Video:', { signedUrl: uploadedVideo.signedUrl, fileUrl: uploadedVideo.fileUrl });
+        await axios.put(uploadedVideo.signedUrl, uploadedVideo.file, {
+          headers: { 'Content-Type': uploadedVideo.file.type },
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              setVideoProgress(percent);
+            }
+          }
         });
-        if (!videoUrl) {
-          setIsUploading(false);
-          setShowLoader(false);
-          return;
-        }
-        uploadedVideoUrl = videoUrl;
+        uploadedVideoUrl = uploadedVideo.fileUrl;
       }
+      // Audio
       let uploadedAudioUrl: string = '';
-      if (audioUrl) {
-        const audioBlob = await fetch(audioUrl).then(res => res.blob());
-        const audioFile = new File([audioBlob], 'recording.webm', { type: audioBlob.type });
+      if (audioFileObj) {
         setAudioProgress(0);
-        const audioUrlResult = await uploadToS3(audioFile, (percent) => {
-          setAudioProgress(percent);
+        console.log('[UPLOAD] Audio:', { signedUrl: audioFileObj.signedUrl, fileUrl: audioFileObj.fileUrl });
+        await axios.put(audioFileObj.signedUrl, audioFileObj.file, {
+          headers: { 'Content-Type': audioFileObj.file.type },
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              setAudioProgress(percent);
+            }
+          }
         });
-        if (!audioUrlResult) {
-          setIsUploading(false);
-          setShowLoader(false);
-          return;
-        }
-        uploadedAudioUrl = audioUrlResult;
+        uploadedAudioUrl = audioFileObj.fileUrl;
       }
       await submitFormData({
         email,
         mobileNumber,
         location: issueLocation,
         audioUrls: uploadedAudioUrl ? [uploadedAudioUrl] : [],
-        photoUrls: uploadedPhotoUrls.filter((url): url is string => typeof url === 'string'),
+        photoUrls: uploadedPhotoUrls,
         videoUrls: uploadedVideoUrl ? [uploadedVideoUrl] : [],
         additionalNotes,
       });
-      setAudioUrl(null);
+      setAudioFileObj(null);
       setUploadedPhotos([]);
       setUploadedVideo(null);
       setSuccessMessage('Files uploaded successfully!');
@@ -337,9 +366,15 @@ const UploadPage: React.FC = () => {
       setPhotoProgress([]);
       setAudioProgress(0);
       setVideoProgress(0);
-      navigate('/thanks');
+      // Show tick, then navigate
+      setShowSuccessTick(true);
+      setTimeout(() => {
+        setShowLoader(false);
+        setShowSuccessTick(false);
+        navigate('/thanks');
+      }, 2000);
+      return;
     } catch (err: any) {
-      console.error('Upload failed:', err);
       setIsUploading(false);
       setShowLoader(false);
       setSnackbar({ open: true, message: err?.message || 'Upload failed. Please try again.' });
@@ -410,9 +445,9 @@ const UploadPage: React.FC = () => {
               </button>
               <span className="recording-time">{recordingTime}</span>
             </div>
-            {audioUrl && (
+            {audioFileObj && (
               <div>
-                <audio controls src={audioUrl} />
+                <audio controls src={audioFileObj.url} />
               </div>
             )}
           </div>
@@ -435,7 +470,7 @@ const UploadPage: React.FC = () => {
               className="upload-input"
             />
             <div className="preview-grid">
-              {uploadedPhotos.map((file, index) => (
+              {uploadedPhotos.map(({ file }, index) => (
                 <div className="preview-wrapper" key={index}>
                   <img
                     src={URL.createObjectURL(file)}
@@ -462,7 +497,7 @@ const UploadPage: React.FC = () => {
             <div onClick={() => videoInputRef.current?.click()} className="upload-container">
               <div className="upload-content">
                 <Video />
-                <span className="upload-text">{uploadedVideo?.name || t('upload_video_text')}</span>
+                <span className="upload-text">{uploadedVideo?.file.name || t('upload_video_text')}</span>
               </div>
             </div>
             <input
@@ -475,7 +510,7 @@ const UploadPage: React.FC = () => {
             {uploadedVideo && (
               <div className="video-preview-wrapper">
                 <video controls width="100%">
-                  <source src={URL.createObjectURL(uploadedVideo)} type={uploadedVideo.type} />
+                  <source src={URL.createObjectURL(uploadedVideo.file)} type={uploadedVideo.file.type} />
                   {t('video_not_supported')}
                 </video>
                 <button
@@ -524,41 +559,55 @@ const UploadPage: React.FC = () => {
       {showLoader && (
         <div className="loader-overlay">
           <div className="loader-content">
-            <div className="loader-spinner"></div>
-            <p className="loader-text">{t('uploading_info')}</p>
-            {/* Upload progress details */}
-            <div style={{ marginTop: '16px', textAlign: 'left', width: 280 }}>
-              {/* Photos Progress */}
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontWeight: 'bold', color: '#263588', minWidth: 60 }}>{t('photos')}</span>
-                  <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#263588' }}>{photoProgress.length > 0 ? Math.round(photoProgress.reduce((a, b) => a + b, 0) / photoProgress.length) : 0}%</span>
+            {showSuccessTick ? (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 50 }}>
+                  <svg width="50" height="50" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="30" cy="30" r="28" stroke="#263588" strokeWidth="4" fill="#f3f3f3" />
+                    <path d="M18 32L27 41L43 23" stroke="#263588" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </div>
-                <div style={{ width: '100%', height: 8, background: '#e5e7eb', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{ width: `${photoProgress.length > 0 ? Math.round(photoProgress.reduce((a, b) => a + b, 0) / photoProgress.length) : 0}%`, height: '100%', background: '#263588', transition: 'width 0.3s' }}></div>
+                <p className="loader-text" style={{ color: '#263588', fontWeight: 600, fontSize: 18, fontFamily: 'Inter, sans-serif' }}>{t('upload_success')}</p>
+              </>
+            ) : (
+              <>
+                <div className="loader-spinner" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 50 }}></div>
+                <p className="loader-text" style={{ fontFamily: 'Inter, sans-serif' }}>{t('uploading_info')}</p>
+                {/* Upload progress details */}
+                <div style={{ marginTop: '16px', textAlign: 'left', width: 280, fontFamily: 'Inter, sans-serif' }}>
+                  {/* Photos Progress */}
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                      <span style={{ fontWeight: 'bold', color: '#263588', minWidth: 60 }}>{t('photos')}</span>
+                      <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#263588' }}>{photoProgress.length > 0 ? Math.round(photoProgress.reduce((a, b) => a + b, 0) / photoProgress.length) : 0}%</span>
+                    </div>
+                    <div style={{ width: '100%', height: 8, background: '#e5e7eb', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ width: `${photoProgress.length > 0 ? Math.round(photoProgress.reduce((a, b) => a + b, 0) / photoProgress.length) : 0}%`, height: '100%', background: '#263588', transition: 'width 0.3s' }}></div>
+                    </div>
+                  </div>
+                  {/* Video Progress */}
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                      <span style={{ fontWeight: 'bold', color: '#263588', minWidth: 60 }}>{t('video')}</span>
+                      <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#263588' }}>{videoProgress}%</span>
+                    </div>
+                    <div style={{ width: '100%', height: 8, background: '#e5e7eb', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ width: `${videoProgress}%`, height: '100%', background: '#263588', transition: 'width 0.3s' }}></div>
+                    </div>
+                  </div>
+                  {/* Audio Progress */}
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                      <span style={{ fontWeight: 'bold', color: '#263588', minWidth: 60 }}>{t('audio')}</span>
+                      <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#263588' }}>{audioProgress}%</span>
+                    </div>
+                    <div style={{ width: '100%', height: 8, background: '#e5e7eb', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ width: `${audioProgress}%`, height: '100%', background: '#263588', transition: 'width 0.3s' }}></div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              {/* Video Progress */}
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontWeight: 'bold', color: '#263588', minWidth: 60 }}>{t('video')}</span>
-                  <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#263588' }}>{videoProgress}%</span>
-                </div>
-                <div style={{ width: '100%', height: 8, background: '#e5e7eb', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{ width: `${videoProgress}%`, height: '100%', background: '#263588', transition: 'width 0.3s' }}></div>
-                </div>
-              </div>
-              {/* Audio Progress */}
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontWeight: 'bold', color: '#263588', minWidth: 60 }}>{t('audio')}</span>
-                  <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#263588' }}>{audioProgress}%</span>
-                </div>
-                <div style={{ width: '100%', height: 8, background: '#e5e7eb', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{ width: `${audioProgress}%`, height: '100%', background: '#263588', transition: 'width 0.3s' }}></div>
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </div>
       )}
