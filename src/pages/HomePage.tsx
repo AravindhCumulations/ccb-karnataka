@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import './HomePage.css';
 import { useNavigate } from 'react-router-dom';
 import AppHeader from '../components/AppHeader';
+import { useTranslation } from 'react-i18next';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [showVideo, setShowVideo] = useState(false);
+  const { t } = useTranslation();
   return (
     <div className="home-container">
       <div className="home-mobile-frame">
@@ -16,7 +18,7 @@ const HomePage: React.FC = () => {
           {/* Welcome header */}
           <div className="home-welcome-section">
             <h1 className="home-welcome-title">
-              Welcome to Raksha
+              {t('welcome')}
             </h1>
           </div>
 
@@ -25,19 +27,19 @@ const HomePage: React.FC = () => {
             <div className="home-minister-card">
               <div className="home-card-content">
                 <div className="home-minister-info">
-                  <h3 className="home-minister-name">Dr. G Parameshwara</h3>
-                  <p className="home-minister-title">Hon'ble Home Minister</p>
+                  <h3 className="home-minister-name">{t('minister_name')}</h3>
+                  <p className="home-minister-title">{t('minister_title')}</p>
                 </div>
                 <div className="home-minister-avatar">
                   <img 
                     src="/karnatakaHM.jpeg"
-                    alt="Dr. G Parameshwara"
+                    alt={t('minister_name')}
                     className="home-avatar-image"
                   />
                 </div>
               </div>
               <p className="home-minister-quote">
-                "Together, we can build a drug-free Bengaluru. Your anonymous reports are crucial in our fight against narcotics. Every piece of information matters."
+                {t('minister_quote')}
               </p>
             </div>
           </div>
@@ -47,13 +49,13 @@ const HomePage: React.FC = () => {
             <div className="home-commissioner-card">
               <div className="home-card-header">
                 <div className="home-commissioner-info">
-                  <h3 className="home-commissioner-name">Seemanth Kumar Singh IPS</h3>
-                  <p className="home-commissioner-title">Commissioner of Police, Bangalore City</p>
+                  <h3 className="home-commissioner-name">{t('commissioner_name')}</h3>
+                  <p className="home-commissioner-title">{t('commissioner_title')}</p>
                 </div>
                 <div className="home-commissioner-avatar">
                   <img 
                     src="/KarnCom.svg"
-                    alt="Seemanth Kumar Singh IPS"
+                    alt={t('commissioner_name')}
                     className="home-avatar-image"
                   />
                 </div>
@@ -89,14 +91,14 @@ const HomePage: React.FC = () => {
               </div> */}
 
             <div className="home-video-section">
-                  <h4 className="home-video-title">Video Message</h4>
+                  <h4 className="home-video-title">{t('video_message')}</h4>
 
                   <div className="home-video-container">
                     {!showVideo && (
                       <div className="video-thumbnail-overlay">
                         <img
                           src="/previewimagehome.jpg"
-                          alt="Video thumbnail"
+                          alt={t('video_thumbnail')}
                           className="video-thumbnail-image"
                         />
                         <button className="video-play-button" onClick={() => setShowVideo(true)}>
@@ -109,7 +111,7 @@ const HomePage: React.FC = () => {
                       <iframe
                         className="home-video-player"
                         src="https://www.youtube.com/embed/sbUehTusRMc?autoplay=1&mute=0"
-                        title="Commissioner Video Message"
+                        title={t('commissioner_video_title')}
                         allow="autoplay"
                         allowFullScreen
                       ></iframe>
@@ -123,7 +125,7 @@ const HomePage: React.FC = () => {
             {/* Report Button */}
             <div className="home-content-padding">
                 <button className="home-report-button" onClick={() => navigate('/otp')}>
-              <span className="home-report-text">Report</span>
+              <span className="home-report-text">{t('report')}</span>
             </button>
           </div>
         </main>

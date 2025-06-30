@@ -11,6 +11,7 @@ import {
 } from "../components/input-otp";
 import "./OtpPage.css";
 import AppHeader from "../components/AppHeader";
+import { useTranslation } from 'react-i18next';
 
 export const OtpPage = (): JSX.Element => {
   // Data for OTP inputs
@@ -26,6 +27,7 @@ export const OtpPage = (): JSX.Element => {
   const [error, setError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Timer effect for cooldown
   React.useEffect(() => {
@@ -125,7 +127,7 @@ export const OtpPage = (): JSX.Element => {
             <div className="otp-title-section">
               <ArrowLeftIcon className="otp-back-icon" onClick={() => navigate('/')} />
               <h1 className="otp-title">
-                Report Activity
+                {t('report_activity')}
               </h1>
             </div>
 
@@ -135,13 +137,11 @@ export const OtpPage = (): JSX.Element => {
                 <ShieldIcon className="otp-shield-icon" />
                 <p className="otp-security-text">
                   <span className="otp-security-normal">
-                    Your identity will remain completely{" "}
+                    {t('identity_remain')}
                   </span>
-                  <span className="otp-security-bold">anonymous.</span>
+                  <span className="otp-security-bold">{t('anonymous')}</span>
                   <span className="otp-security-normal">
-                    {" "}
-                    Your phone number will never be shared or used to contact
-                    you.
+                    {t('phone_never_shared')}
                   </span>
                 </p>
               </CardContent>
@@ -151,7 +151,7 @@ export const OtpPage = (): JSX.Element => {
           {/* Mobile number input */}
           <div className="otp-mobile-section">
             <label className="otp-mobile-label">
-              Mobile number
+              {t('mobile_number')}
             </label>
             <div className="otp-mobile-input-container">
               <div className="otp-country-code">
@@ -162,10 +162,10 @@ export const OtpPage = (): JSX.Element => {
               <Input
                 type="password"
                 className="otp-mobile-input px-2"
-                aria-label="Phone number"
+                aria-label={t('phone_number_aria')}
                 value={mobileNumber}
                 onChange={e => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                placeholder="Enter 10-digit number"
+                placeholder={t('enter_10_digit')}
                 maxLength={10}
                 inputMode="numeric"
               />
@@ -179,7 +179,7 @@ export const OtpPage = (): JSX.Element => {
             disabled={!isMobileValid || isSending || cooldown > 0}
           >
             <span className="otp-button-text">
-              {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Send OTP'}
+              {cooldown > 0 ? t('resend_otp_in', { cooldown }) : t('send_otp')}
             </span>
           </Button>
 
@@ -188,7 +188,7 @@ export const OtpPage = (): JSX.Element => {
             <div className="otp-input-container">
               <div className="otp-input-wrapper">
                 <label className="otp-input-label">
-                  OTP
+                  {t('otp')}
                 </label>
                 <InputOTP
                   type="password"
@@ -207,7 +207,7 @@ export const OtpPage = (): JSX.Element => {
                     ))}
                   </InputOTPGroup>
                 </InputOTP>
-                {error && <p className="otp-error-text">{error}</p>}
+                {error && <p className="otp-error-text">{t(error)}</p>}
               </div>
             </div>
           </div>
@@ -219,7 +219,7 @@ export const OtpPage = (): JSX.Element => {
             disabled={!isMobileValid || !isOtpValid || isVerifying}
           >
             <span className="otp-button-text">
-              {isVerifying ? 'Verifying...' : 'Next'}
+              {isVerifying ? t('verifying') : t('next')}
             </span>
           </Button>
         </main>

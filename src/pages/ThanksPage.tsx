@@ -3,9 +3,11 @@ import { ArrowLeft, Phone } from 'lucide-react';
 import './ThanksPage.css';
 import { useNavigate } from 'react-router-dom';
 import AppHeader from '../components/AppHeader';
+import { useTranslation } from 'react-i18next';
 
 const ThanksPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleBangalorePoliceClick = () => {
     // Open Bangalore City Police website
@@ -29,26 +31,26 @@ const ThanksPage: React.FC = () => {
             <div className="thanks-title-section">
               <ArrowLeft className="thanks-back-icon" onClick={() => navigate('/')} />
               <h1 className="thanks-title">
-                Back to home
+                {t('back_to_home')}
               </h1>
             </div>
           </div>
 
           {/* Thank you message */}
           <div className="thank-you-message">
-            Thank you for your submission!
+            {t('thank_you_submission')}
           </div>
 
           {/* Emergency Helpline Card */}
           <div className="content-padding">
             <div className="helpline-card">
               <div className="card-content">
-                <p className="card-subtitle">Call on toll free number</p>
+                <p className="card-subtitle">{t('call_toll_free')}</p>
                 <div className="phone-section">
                   <Phone className="phone-icon" />
                   <span className="phone-number">1933</span>
                 </div>
-                <p className="card-description">24 x 7 : National Narcotics Helpline</p>
+                <p className="card-description">{t('narcotics_helpline')}</p>
               </div>
             </div>
           </div>
@@ -57,9 +59,9 @@ const ThanksPage: React.FC = () => {
           <div className="content-padding">
             <div className="counselling-card">
               <div className="card-content">
-                <p className="card-subtitle">Assistance Required?</p>
+                <p className="card-subtitle">{t('assistance_required')}</p>
                 <button className="counselling-button" onClick={handleBangalorePoliceClick}>
-                  Bangalore City Police
+                  {t('bangalore_city_police')}
                 </button>
               </div>
             </div>
@@ -69,9 +71,9 @@ const ThanksPage: React.FC = () => {
           <div className="content-padding assistance-required">
             <div className="counselling-card">
               <div className="card-content">
-                <p className="card-subtitle">Assistance Required?</p>
+                <p className="card-subtitle">{t('assistance_required')}</p>
                 <button className="counselling-button" onClick={() => navigate('/rehab-list')}>
-                  List of Rehabilitation Centers
+                  {t('rehab_centers_list')}
                 </button>
               </div>
             </div>

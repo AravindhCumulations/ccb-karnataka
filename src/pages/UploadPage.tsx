@@ -14,6 +14,9 @@ import RecordRTC from 'recordrtc';
 // import { FFmpeg } from '@ffmpeg/ffmpeg';
 // import { fetchFile } from '@ffmpeg/util';
 import AppHeader from '../components/AppHeader';
+import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
+
 
 
 const UploadPage: React.FC = () => {
@@ -47,6 +50,9 @@ const UploadPage: React.FC = () => {
   const [showLoader, setShowLoader] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const [photoProgress, setPhotoProgress] = useState<number[]>([]);
+const [videoProgress, setVideoProgress] = useState<number>(0);
+const [audioProgress, setAudioProgress] = useState<number>(0);
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -98,6 +104,15 @@ const UploadPage: React.FC = () => {
     };
 
     const timerRef = useRef<number | null>(null);
+
+    useEffect(() => {
+      const token = localStorage.getItem("jwt");
+    
+      if (!isValidJwt(token)) {
+        navigate('/', { replace: true });
+      }
+    }, []);
+    
 
     useEffect(() => {
     if (isRecording) {
@@ -192,10 +207,68 @@ const UploadPage: React.FC = () => {
       // }
     };
 
-    const uploadToS3 = async (file: File) => {
-      try {
+    // const uploadToS3 = async (file: File) => {
+    //   try {
         
-        // Step 1: Get Signed URL from your Node.js backend
+    //     // Step 1: Get Signed URL from your Node.js backend
+    //     const res = await fetch('https://erbmnx9dfg.execute-api.us-east-1.amazonaws.com/stage1/', {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json'
+    //       },
+    //       body: JSON.stringify({
+    //         headers: {
+    //           Authorization: "Bearer " + localStorage.getItem('jwt')
+    //         },
+    //         body: {
+    //           fileName: file.name,
+    //           fileType: file.type,
+    //         },
+    //         httpMethod: "POST"
+    //       }),
+    //     });
+        
+    //     const responseEvent = await res.json();
+
+    //     // Parse the nested JSON string
+    //     const body = typeof responseEvent.body === 'string'
+    //       ? JSON.parse(responseEvent.body)
+    //       : responseEvent.body;
+        
+    //     const signedUrl = body.signedUrl;
+    //     const fileUrl = body.fileUrl;
+
+    //     console.log("signedUrl " + signedUrl);
+    //     console.log("fileUrl " + fileUrl);
+        
+    //     // Step 2: Upload the file to the signed URL
+        
+    //     const uploadRes = await fetch(signedUrl, {
+    //       method: 'PUT',
+    //       headers: {
+    //         'Content-Type': file.type,           // MUST match the type used during URL generation
+    //       },
+    //       body: file,
+    //     });
+        
+    
+    //     if (!uploadRes.ok) {
+    //       throw new Error('Upload failed');
+    //     }
+    
+    //     // Step 3: Use fileUrl as your uploaded public file path
+    //     return fileUrl;
+    //   } catch (err) {
+    //     alert('File upload failed!');
+    //   }
+    // };
+
+    const uploadToS3 = async (
+      file: File,
+      onProgress?: (percent: number) => void
+    ): Promise<string | undefined> => {
+      try {
+        // Step 1: Get Signed URL from your backend
         const res = await fetch('https://erbmnx9dfg.execute-api.us-east-1.amazonaws.com/stage1/', {
           method: 'POST',
           headers: {
@@ -212,38 +285,42 @@ const UploadPage: React.FC = () => {
             httpMethod: "POST"
           }),
         });
-        
-        const responseEvent = await res.json();
 
-        // Parse the nested JSON string
+        if (res.status === 401) {
+          // Invalid token, redirect to home
+          navigate('/');
+          return;
+        }
+    
+        const responseEvent = await res.json();
         const body = typeof responseEvent.body === 'string'
           ? JSON.parse(responseEvent.body)
           : responseEvent.body;
-        
+    
         const signedUrl = body.signedUrl;
         const fileUrl = body.fileUrl;
-
-        console.log("signedUrl " + signedUrl);
-        console.log("fileUrl " + fileUrl);
-        
-        // Step 2: Upload the file to the signed URL
-        
-        const uploadRes = await fetch(signedUrl, {
-          method: 'PUT',
+    
+        console.log("signedUrl:", signedUrl);
+        console.log("fileUrl:", fileUrl);
+    
+        // Step 2: Upload using Axios (for progress)
+        await axios.put(signedUrl, file, {
           headers: {
-            'Content-Type': file.type,           // MUST match the type used during URL generation
+            'Content-Type': file.type
           },
-          body: file,
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              if (onProgress) onProgress(percent);
+            }
+          }
         });
-        
     
-        if (!uploadRes.ok) {
-          throw new Error('Upload failed');
-        }
-    
-        // Step 3: Use fileUrl as your uploaded public file path
+        // Step 3: Return uploaded file URL
         return fileUrl;
+    
       } catch (err) {
+        console.error('❌ File upload failed:', err);
         alert('File upload failed!');
       }
     };
@@ -297,25 +374,105 @@ const UploadPage: React.FC = () => {
       return res.json();
     };
 
+    // const handleFinalUpload = async () => {
+    //   setIsUploading(true);
+    //   setSuccessMessage('');
+    //   setShowLoader(true); // Show loader overlay
+
+    //   try {
+    //     // Upload Photos
+    //     const uploadedPhotoUrls = await Promise.all(
+    //       uploadedPhotos.map(async (photo) => {
+    //         return await uploadToS3(photo);
+    //       })
+    //     );
+
+    //     // Upload Video
+    //     let uploadedVideoUrl: string | null = null;
+    //     if (uploadedVideo) {
+    //       uploadedVideoUrl = await uploadToS3(uploadedVideo);
+    //     }
+
+    //     // Upload Audio
+    //     let uploadedAudioUrl: string | null = null;
+    //     if (audioUrl) {
+    //       const audioBlob = await fetch(audioUrl).then(res => res.blob());
+    //       const audioFile = new File([audioBlob], 'recording.webm', {
+    //         type: audioBlob.type,
+    //       });
+    //       uploadedAudioUrl = await uploadToS3(audioFile);
+    //     }
+
+    //     // Call your backend API with all the data
+    //     await submitFormData({
+    //       email,
+    //       mobileNumber,
+    //       location: issueLocation,
+    //       audioUrls: uploadedAudioUrl ? [uploadedAudioUrl] : [],
+    //       photoUrls: uploadedPhotoUrls.filter(Boolean) as string[],
+    //       videoUrls: uploadedVideoUrl ? [uploadedVideoUrl] : [],
+    //       additionalNotes,
+    //     });
+
+    //     // Clear file states after success
+    //     setAudioUrl(null);
+    //     setUploadedPhotos([]);
+    //     setUploadedVideo(null);
+    //     setSuccessMessage('Files uploaded successfully!');
+    //     setEmail('');
+    //     setAudioUrl('');
+    //     setMobileNumber('');
+    //     setAdditionalNotes('');
+    //     setIssueLocation('');
+    //     setIsUploading(false);
+    //     setRecordingTime('00.00');
+        
+    //     // Navigate to thanks page on success
+    //     navigate('/thanks');
+    //   } catch (err) {
+    //     console.error('Upload failed:', err);
+    //   }
+    //   finally {
+    //     setIsUploading(false);
+    //     setShowLoader(false); // Hide loader on error
+    //   }
+    // };
+
     const handleFinalUpload = async () => {
       setIsUploading(true);
       setSuccessMessage('');
       setShowLoader(true); // Show loader overlay
-
+    
       try {
-        // Upload Photos
+        // Upload Photos with Progress
+        setPhotoProgress(Array(uploadedPhotos.length).fill(0));
         const uploadedPhotoUrls = await Promise.all(
-          uploadedPhotos.map(async (photo) => {
-            return await uploadToS3(photo);
+          uploadedPhotos.map(async (photo, index) => {
+            const url = await uploadToS3(photo, (percent) => {
+              setPhotoProgress(prev => {
+                const updated = [...prev];
+                updated[index] = percent;
+                return updated;
+              });
+            });
+            if (!url) {
+              throw new Error('Photo upload failed');
+            }
+            return url;
           })
         );
-
+    
         // Upload Video
         let uploadedVideoUrl: string | null = null;
         if (uploadedVideo) {
-          uploadedVideoUrl = await uploadToS3(uploadedVideo);
+          setVideoProgress(0);
+          const videoUrl = await uploadToS3(uploadedVideo, (percent) => {
+            setVideoProgress(percent);
+          });
+          if (!videoUrl) throw new Error('Video upload failed');
+          uploadedVideoUrl = videoUrl;
         }
-
+    
         // Upload Audio
         let uploadedAudioUrl: string | null = null;
         if (audioUrl) {
@@ -323,10 +480,15 @@ const UploadPage: React.FC = () => {
           const audioFile = new File([audioBlob], 'recording.webm', {
             type: audioBlob.type,
           });
-          uploadedAudioUrl = await uploadToS3(audioFile);
+          setAudioProgress(0);
+          const audioUrlResult = await uploadToS3(audioFile, (percent) => {
+            setAudioProgress(percent);
+          });
+          if (!audioUrlResult) throw new Error('Audio upload failed');
+          uploadedAudioUrl = audioUrlResult;
         }
-
-        // Call your backend API with all the data
+    
+        // Submit form data
         await submitFormData({
           email,
           mobileNumber,
@@ -336,28 +498,42 @@ const UploadPage: React.FC = () => {
           videoUrls: uploadedVideoUrl ? [uploadedVideoUrl] : [],
           additionalNotes,
         });
-
-        // Clear file states after success
+    
+        // Reset state on success
         setAudioUrl(null);
         setUploadedPhotos([]);
         setUploadedVideo(null);
         setSuccessMessage('Files uploaded successfully!');
         setEmail('');
-        setAudioUrl('');
         setMobileNumber('');
         setAdditionalNotes('');
         setIssueLocation('');
         setIsUploading(false);
         setRecordingTime('00.00');
-        
-        // Navigate to thanks page on success
+        setPhotoProgress([]);
+        setAudioProgress(0);
+        setVideoProgress(0);
+    
         navigate('/thanks');
       } catch (err) {
         console.error('Upload failed:', err);
         setIsUploading(false);
-        setShowLoader(false); // Hide loader on error
+        setShowLoader(false);
+        alert('Upload failed. Please try again.');
       }
     };
+    
+
+    function isValidJwt(token: string | null): boolean {
+      if (!token) return false;
+      try {
+        const { exp } = jwtDecode<{ exp: number }>(token);
+        const now = Math.floor(Date.now() / 1000);
+        return exp > now;
+      } catch {
+        return false;
+      }
+    }
     
     // function maskMobileNumber(number: string) {
     //   if (!number || number.length < 2) return number; // handle edge case
@@ -584,6 +760,21 @@ const UploadPage: React.FC = () => {
           <div className="loader-content">
             <div className="loader-spinner"></div>
             <p className="loader-text">Uploading your information...</p>
+            {/* Upload progress details */}
+            <div style={{ marginTop: '16px', textAlign: 'left' }}>
+              {/* Photos Progress */}
+              <div style={{ marginBottom: 8, color: (photoProgress.length === 0 || (photoProgress.length > 0 && Math.round(photoProgress.reduce((a, b) => a + b, 0) / photoProgress.length) === 0) || (photoProgress.length > 0 && Math.round(photoProgress.reduce((a, b) => a + b, 0) / photoProgress.length) === 100)) ? '#b0b0b0' : '#263588', fontWeight: 'bold' }}>
+                Photos: {photoProgress.length > 0 ? Math.round(photoProgress.reduce((a, b) => a + b, 0) / photoProgress.length) : 0}%
+              </div>
+              {/* Video Progress */}
+              <div style={{ marginBottom: 8, color: (videoProgress === 0 || videoProgress === 100) ? '#b0b0b0' : '#263588', fontWeight: 'bold' }}>
+                Video: {videoProgress}%
+              </div>
+              {/* Audio Progress */}
+              <div style={{ color: (audioProgress === 0 || audioProgress === 100) ? '#b0b0b0' : '#263588', fontWeight: 'bold' }}>
+                Audio: {audioProgress}%
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -2,7 +2,7 @@
 // src/App.tsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
-import UploadPage from './pages/UploadPage'; // import your new page
+import UploadPage from './pages/UploadPagev1'; // import your new page
 // import MainPage from './pages/MainPage';
 import { OtpPage } from './pages/OtpPage';
 import ThanksPage from './pages/ThanksPage';
