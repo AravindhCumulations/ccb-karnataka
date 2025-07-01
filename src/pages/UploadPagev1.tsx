@@ -102,16 +102,14 @@ const UploadPage: React.FC = () => {
   function handleApiError(body: any, setSnackbar: any, navigate: any) {
     if (body.statusCode === 200) return false;
     if (body.statusCode === 401 || body.statusCode === 403 || body.statusCode === 400) {
-      if (body.error) {
-        setSnackbar({ open: true, message: body.error });
-      } else {
-        setSnackbar({ open: true, message: 'Otp expired' });
+      let errorMsg = 'Otp expired';
+      if (body.body) {
+        let parsed = typeof body.body === 'string' ? JSON.parse(body.body) : body.body;
+        if (parsed.error) errorMsg = parsed.error;
       }
-      if (body.statusCode === 401 || body.statusCode === 403) {
-        navigate('/otp', { replace: true });
-        setSnackbar({ open: true, message: 'error 401 missing required headers' });
-      }
-      return true;
+      setSnackbar({ open: true, message: errorMsg });
+      navigate('/otp', { replace: true });
+      throw new Error(errorMsg);
     }
     return false;
   }
@@ -137,7 +135,7 @@ const UploadPage: React.FC = () => {
     let body = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
     console.log("data ", data);
     
-    if (handleApiError(data, setSnackbar, navigate)) return null;
+    handleApiError(data, setSnackbar, navigate);
     return { signedUrl: body.signedUrl, fileUrl: body.fileUrl };
   };
 
@@ -281,8 +279,8 @@ const UploadPage: React.FC = () => {
   }) => {
     if(!isValidJwt(localStorage.getItem('jwt'))) {
       setSnackbar({ open: true, message: 'Otp expired' });
-      navigate('/otp', { replace: true });
-      return;
+      navigate('/', { replace: true });
+      throw new Error('Otp expired');
     }
     const res = await fetch('https://4ms2bettk2.execute-api.us-east-1.amazonaws.com/v1/', {
       method: 'POST',
@@ -299,11 +297,8 @@ const UploadPage: React.FC = () => {
       }),
     });
     const data = await res.json();
-    
     let body = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
-    console.log(body);
-    
-    if (handleApiError(data, setSnackbar, navigate)) return;
+    handleApiError(body, setSnackbar, navigate);
     return data;
   };
 
@@ -368,9 +363,7 @@ const UploadPage: React.FC = () => {
         });
         uploadedAudioUrl = audioFileObj.fileUrl;
       }
-
       console.log("submitting form data");
-      
       await submitFormData({
         email,
         mobileNumber,
