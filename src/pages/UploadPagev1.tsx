@@ -99,8 +99,27 @@ const UploadPage: React.FC = () => {
   }, [snackbar.open]);
 
   // --- Handlers ---
+  function handleApiError(body: any, setSnackbar: any, navigate: any) {
+    if (body.statusCode === 200) return false;
+    if (body.statusCode === 401 || body.statusCode === 403 || body.statusCode === 400) {
+      if (body.error) {
+        setSnackbar({ open: true, message: body.error });
+      } else {
+        setSnackbar({ open: true, message: 'Otp expired' });
+      }
+      if (body.statusCode === 401 || body.statusCode === 403) {
+        navigate('/otp', { replace: true });
+        setSnackbar({ open: true, message: 'error 401 missing required headers' });
+      }
+      return true;
+    }
+    return false;
+  }
+
   const getSignedUrl = async (file: File) => {
+    console.log("getting signed url");
     if(!isValidJwt(localStorage.getItem('jwt'))) {
+      console.log("otp expired");
       setSnackbar({ open: true, message: 'Otp expired' });
       navigate('/otp', { replace: true });
       return null;
@@ -115,16 +134,10 @@ const UploadPage: React.FC = () => {
       }),
     });
     const data = await res.json();
-    if (data.statusCode === 401) {
-      try {
-        if (data && data.body) {
-          setSnackbar({ open: true, message: JSON.parse(data.body).error });
-          navigate('/otp', { replace: true });
-        }
-      } catch {}
-      return null;
-    }
-    const body = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
+    let body = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
+    console.log("data ", data);
+    
+    if (handleApiError(data, setSnackbar, navigate)) return null;
     return { signedUrl: body.signedUrl, fileUrl: body.fileUrl };
   };
 
@@ -266,6 +279,11 @@ const UploadPage: React.FC = () => {
     videoUrls: string[];
     additionalNotes: string;
   }) => {
+    if(!isValidJwt(localStorage.getItem('jwt'))) {
+      setSnackbar({ open: true, message: 'Otp expired' });
+      navigate('/otp', { replace: true });
+      return;
+    }
     const res = await fetch('https://4ms2bettk2.execute-api.us-east-1.amazonaws.com/v1/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -277,10 +295,16 @@ const UploadPage: React.FC = () => {
         photo_urls: photoUrls,
         video_urls: videoUrls,
         additional_notes: additionalNotes,
+        headers: { Authorization: "Bearer " + localStorage.getItem('jwt') },
       }),
     });
-    if (!res.ok) throw new Error('Form submission failed');
-    return res.json();
+    const data = await res.json();
+    
+    let body = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
+    console.log(body);
+    
+    if (handleApiError(data, setSnackbar, navigate)) return;
+    return data;
   };
 
   // --- Main Upload Handler ---
@@ -296,7 +320,7 @@ const UploadPage: React.FC = () => {
       const uploadedPhotoUrls: string[] = [];
       for (let i = 0; i < uploadedPhotos.length; i++) {
         const { file, signedUrl, fileUrl } = uploadedPhotos[i];
-        console.log('[UPLOAD] Photo:', { signedUrl, fileUrl });
+        console.log('[UPLOAD] Photo:', { fileName: file.name, fileType: file.type, signedUrl, fileUrl });
         await axios.put(signedUrl, file, {
           headers: { 'Content-Type': file.type },
           onUploadProgress: (progressEvent) => {
@@ -344,6 +368,9 @@ const UploadPage: React.FC = () => {
         });
         uploadedAudioUrl = audioFileObj.fileUrl;
       }
+
+      console.log("submitting form data");
+      
       await submitFormData({
         email,
         mobileNumber,
@@ -576,35 +603,41 @@ const UploadPage: React.FC = () => {
                 {/* Upload progress details */}
                 <div style={{ marginTop: '16px', textAlign: 'left', width: 280, fontFamily: 'Inter, sans-serif' }}>
                   {/* Photos Progress */}
-                  <div style={{ marginBottom: 16 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-                      <span style={{ fontWeight: 'bold', color: '#263588', minWidth: 60 }}>{t('photos')}</span>
-                      <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#263588' }}>{photoProgress.length > 0 ? Math.round(photoProgress.reduce((a, b) => a + b, 0) / photoProgress.length) : 0}%</span>
+                  {uploadedPhotos.length > 0 && (
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                        <span style={{ fontWeight: 'bold', color: '#263588', minWidth: 60 }}>{t('photos')}</span>
+                        <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#263588' }}>{photoProgress.length > 0 ? Math.round(photoProgress.reduce((a, b) => a + b, 0) / photoProgress.length) : 0}%</span>
+                      </div>
+                      <div style={{ width: '100%', height: 8, background: '#e5e7eb', borderRadius: 4, overflow: 'hidden' }}>
+                        <div style={{ width: `${photoProgress.length > 0 ? Math.round(photoProgress.reduce((a, b) => a + b, 0) / photoProgress.length) : 0}%`, height: '100%', background: '#263588', transition: 'width 0.3s' }}></div>
+                      </div>
                     </div>
-                    <div style={{ width: '100%', height: 8, background: '#e5e7eb', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ width: `${photoProgress.length > 0 ? Math.round(photoProgress.reduce((a, b) => a + b, 0) / photoProgress.length) : 0}%`, height: '100%', background: '#263588', transition: 'width 0.3s' }}></div>
-                    </div>
-                  </div>
+                  )}
                   {/* Video Progress */}
-                  <div style={{ marginBottom: 16 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-                      <span style={{ fontWeight: 'bold', color: '#263588', minWidth: 60 }}>{t('video')}</span>
-                      <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#263588' }}>{videoProgress}%</span>
+                  {uploadedVideo && (
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                        <span style={{ fontWeight: 'bold', color: '#263588', minWidth: 60 }}>{t('video')}</span>
+                        <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#263588' }}>{videoProgress}%</span>
+                      </div>
+                      <div style={{ width: '100%', height: 8, background: '#e5e7eb', borderRadius: 4, overflow: 'hidden' }}>
+                        <div style={{ width: `${videoProgress}%`, height: '100%', background: '#263588', transition: 'width 0.3s' }}></div>
+                      </div>
                     </div>
-                    <div style={{ width: '100%', height: 8, background: '#e5e7eb', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ width: `${videoProgress}%`, height: '100%', background: '#263588', transition: 'width 0.3s' }}></div>
-                    </div>
-                  </div>
+                  )}
                   {/* Audio Progress */}
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-                      <span style={{ fontWeight: 'bold', color: '#263588', minWidth: 60 }}>{t('audio')}</span>
-                      <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#263588' }}>{audioProgress}%</span>
+                  {audioFileObj && (
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                        <span style={{ fontWeight: 'bold', color: '#263588', minWidth: 60 }}>{t('audio')}</span>
+                        <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#263588' }}>{audioProgress}%</span>
+                      </div>
+                      <div style={{ width: '100%', height: 8, background: '#e5e7eb', borderRadius: 4, overflow: 'hidden' }}>
+                        <div style={{ width: `${audioProgress}%`, height: '100%', background: '#263588', transition: 'width 0.3s' }}></div>
+                      </div>
                     </div>
-                    <div style={{ width: '100%', height: 8, background: '#e5e7eb', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ width: `${audioProgress}%`, height: '100%', background: '#263588', transition: 'width 0.3s' }}></div>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </>
             )}
