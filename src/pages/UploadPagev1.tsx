@@ -309,15 +309,10 @@ const UploadPage: React.FC = () => {
     setShowLoader(true);
     setShowSuccessTick(false);
     try {
-      // Photos
-      const photoProgressArr = Array(uploadedPhotos.length).fill(0);
-      setPhotoProgress(photoProgressArr);
-      const uploadedPhotoUrls: string[] = [];
-      for (let i = 0; i < uploadedPhotos.length; i++) {
-        const { file, signedUrl, fileUrl } = uploadedPhotos[i];
-        console.log('[UPLOAD] Photo:', { fileName: file.name, fileType: file.type, signedUrl, fileUrl });
-        await axios.put(signedUrl, file, {
-          headers: { 'Content-Type': file.type },
+      // --- Helper uploaders ---
+      const uploadPhoto = (photoObj: { file: File; signedUrl: string; fileUrl: string; progress: number }, i: number) =>
+        axios.put(photoObj.signedUrl, photoObj.file, {
+          headers: { 'Content-Type': photoObj.file.type },
           onUploadProgress: (progressEvent) => {
             if (progressEvent.total) {
               const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -328,49 +323,52 @@ const UploadPage: React.FC = () => {
               });
             }
           }
-        });
-        uploadedPhotoUrls.push(fileUrl);
-      }
-      // Video
-      let uploadedVideoUrl = '';
-      if (uploadedVideo) {
-        setVideoProgress(0);
-        console.log('[UPLOAD] Video:', { signedUrl: uploadedVideo.signedUrl, fileUrl: uploadedVideo.fileUrl });
-        await axios.put(uploadedVideo.signedUrl, uploadedVideo.file, {
-          headers: { 'Content-Type': uploadedVideo.file.type },
+        }).then(() => photoObj.fileUrl);
+
+      const uploadVideo = (videoObj: { file: File; signedUrl: string; fileUrl: string; progress: number }) =>
+        axios.put(videoObj.signedUrl, videoObj.file, {
+          headers: { 'Content-Type': videoObj.file.type },
           onUploadProgress: (progressEvent) => {
             if (progressEvent.total) {
               const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
               setVideoProgress(percent);
             }
           }
-        });
-        uploadedVideoUrl = uploadedVideo.fileUrl;
-      }
-      // Audio
-      let uploadedAudioUrl: string = '';
-      if (audioFileObj) {
-        setAudioProgress(0);
-        console.log('[UPLOAD] Audio:', { signedUrl: audioFileObj.signedUrl, fileUrl: audioFileObj.fileUrl });
-        await axios.put(audioFileObj.signedUrl, audioFileObj.file, {
-          headers: { 'Content-Type': audioFileObj.file.type },
+        }).then(() => videoObj.fileUrl);
+
+      const uploadAudio = (audioObj: { file: File; signedUrl: string; fileUrl: string; progress: number }) =>
+        axios.put(audioObj.signedUrl, audioObj.file, {
+          headers: { 'Content-Type': audioObj.file.type },
           onUploadProgress: (progressEvent) => {
             if (progressEvent.total) {
               const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
               setAudioProgress(percent);
             }
           }
-        });
-        uploadedAudioUrl = audioFileObj.fileUrl;
-      }
-      console.log("submitting form data");
+        }).then(() => audioObj.fileUrl);
+
+      // --- Start uploads in parallel ---
+      setPhotoProgress(Array(uploadedPhotos.length).fill(0));
+      setVideoProgress(0);
+      setAudioProgress(0);
+
+      const photoUploadPromises = uploadedPhotos.map((photo, i) => uploadPhoto(photo, i));
+      const videoUploadPromise = uploadedVideo ? uploadVideo(uploadedVideo) : Promise.resolve(null);
+      const audioUploadPromise = audioFileObj ? uploadAudio(audioFileObj) : Promise.resolve(null);
+
+      const [photoUrls, videoUrl, audioUrl] = await Promise.all([
+        Promise.all(photoUploadPromises),
+        videoUploadPromise,
+        audioUploadPromise
+      ]);
+
       await submitFormData({
         email,
         mobileNumber,
         location: issueLocation,
-        audioUrls: uploadedAudioUrl ? [uploadedAudioUrl] : [],
-        photoUrls: uploadedPhotoUrls,
-        videoUrls: uploadedVideoUrl ? [uploadedVideoUrl] : [],
+        audioUrls: audioUrl ? [audioUrl] : [],
+        photoUrls: photoUrls || [],
+        videoUrls: videoUrl ? [videoUrl] : [],
         additionalNotes,
       });
       setAudioFileObj(null);
